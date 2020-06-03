@@ -135,6 +135,47 @@ class PhaseLabeller:
         """
         return pd.DataFrame([vars(x) for x in self.breaths])
     
+    def get_breath_annotations(self, N, p_states=list(ps), f_states=list(fs)):
+        """ Returns a Nx3 dataframe containing key points of breaths mapped to indices to be used with GUI annotator for viewing
+            
+        :param N: Length of the sample that was analyzed (in terms of data points)
+        :type N: Integer
+        :param p_states: The pressure states from each breath that you would like mapped
+        :type p_states: array like of PressureStates
+        :param f_states: The flow states from each breath that you woudld like mapped
+        :type f_states: array like of FlowStates
+        :returns: Dataframe containing keypoints at each index of the data on which the analysis was performed
+        :rtype: Pandas Dataframe
+        """
+        output = pd.concat([pd.Series(range(N)), pd.Series([-1] * N), pd.Series([-1] * N)], axis=1)
+        breaths = self.get_breaths_raw()
+        for p in p_states:
+            if p == ps.pressure_rise:
+                output.iloc[breaths["pressure_rise_start"],1] = ps.pressure_rise.value
+            elif p == ps.pip:
+                output.iloc[breaths["pip_start"],1] = ps.pip.value
+            elif p == ps.pressure_drop:
+                output.iloc[breaths["pressure_drop_start"],1] = ps.pressure_drop.value
+            elif p == ps.peep:
+                output.iloc[breaths["peep_start"],1] = ps.peep.value
+        for f in f_states:
+            if f == fs.inspiration_initiation:
+                output.iloc[breaths["inspiration_initiation_start"],2] = fs.inspiration_initiation.value
+            elif f == fs.peak_inspiratory_flow:
+                output.iloc[breaths["peak_inspiratory_flow_start"],2] = fs.peak_inspiratory_flow.value
+            elif f == fs.inspiration_termination:
+                output.iloc[breaths["inspiration_termination_start"],2] = fs.inspiration_termination.value
+            elif f == fs.no_flow:
+                output.iloc[breaths["inspiratory_hold_start"],2] = fs.no_flow.value
+                output.iloc[breaths["expiratory_hold_start"],2] = fs.no_flow.value
+            elif f == fs.expiration_initiation:
+                output.iloc[breaths["expiration_initiation_start"],2] = fs.expiration_initiation.value
+            elif f == fs.peak_expiratory_flow:
+                output.iloc[breaths["peak_expiratory_flow_start"],2] = fs.peak_expiratory_flow.value
+            elif f == fs.expiration_termination:
+                output.iloc[breaths["expiration_termination_start"],2] = fs.expiration_termination.value
+        return output
+    
     def __get_next_breath(self, labels, start):
         """Identifies the next breath in the record based on Inspiration-Inspiration interval
         

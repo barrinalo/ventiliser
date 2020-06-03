@@ -60,6 +60,7 @@ class MainWindow(QMainWindow):
         self.pressure_plot.setLabel("left", "Pressure")
         self.pressure_plot.setLabel("bottom", "Time")
         self.pressure_plot.scene().sigMouseClicked.connect(self.__on_graph_click)
+        self.pressure_plot.sigXRangeChanged.connect(self.__on_axis_change)
         self.pressure_plot.setClipToView(True)
         self.display_layout.nextRow()
         self.flow_plot = self.display_layout.addPlot(title="Flow waveform")
@@ -88,18 +89,20 @@ class MainWindow(QMainWindow):
         self.flow_labels = []
         self.pressure_markers = []
         self.flow_markers = []
+        self.xmin = 0
+        self.xmax = 0
         
         # For file i/o
         self.File = self.menuBar().addMenu("&File")
         load_waveforms = QAction("Load Waveforms", self)
         load_waveforms.triggered.connect(self.__load_waveforms)
         self.File.addAction(load_waveforms)
-        save_labels = QAction("Save Labels", self)
-        save_labels.triggered.connect(self.__save_labels)
-        self.File.addAction(save_labels)
-        load_labels = QAction("Load Labels", self)
-        load_labels.triggered.connect(self.__load_labels)
-        self.File.addAction(load_labels)
+        save_annotations = QAction("Save Annotations", self)
+        save_annotations.triggered.connect(self.__save_annotations)
+        self.File.addAction(save_annotations)
+        load_annotations = QAction("Load Annotations", self)
+        load_annotations.triggered.connect(self.__load_annotations)
+        self.File.addAction(load_annotations)
         save_graph = QAction("Save graph", self)
         save_graph.triggered.connect(self.__save_graph)
         self.File.addAction(save_graph)
@@ -117,46 +120,40 @@ class MainWindow(QMainWindow):
             column_selection = ColumnSelectionDialog(data)
             if column_selection.exec():
                 self.data = pd.read_csv(fname[0], usecols=column_selection.selected_indices)
+                if self.data.iloc[:,0].dtype != "int64":
+                    self.data.iloc[:,0] = self.data.iloc[:,0].apply(lambda x: pd.to_datetime(x).value / 1000000) # convert to ms
                 self.data[self.data.columns[0]] -= self.data[self.data.columns[0]].min()
                 self.pressure_labels = np.array([-1] * self.data.shape[0])
                 self.flow_labels = np.array([-1] * self.data.shape[0])
-                self.pressure_markers = np.array([None] * self.data.shape[0])
-                self.flow_markers = np.array([None] * self.data.shape[0])
+                self.pressure_markers = {}
+                self.flow_markers = {}
                 self.interval = self.data.iat[1,0] - self.data.iat[0,0]
                 self.__init_graph()
                 
-    def __load_labels(self):
+    def __load_annotations(self):
         if self.data is not None:
             fname = QFileDialog.getOpenFileName(self, "Open File", os.getcwd(), "(*.csv)")
             if fname[0] != "":
                 labels = pd.read_csv(fname[0])
                 if labels.shape[0] != self.data.shape[0]:
-                    Popup("Error","Number of rows in data and labels is not the same")
+                    Popup("Error","Number of rows in data and annotations is not the same")
                 else:
                     try:
                         self.pressure_labels = labels.iloc[:,1].values
                         self.flow_labels = labels.iloc[:,2].values
-                        for i in range(len(self.pressure_markers)):
-                            if self.pressure_markers[i] is not None:
-                                self.pressure_plot.removeItem(self.pressure_markers[i])
-                            if self.pressure_labels[i] != -1:
-                                self.pressure_plot.addLine(i * self.interval, pen=self.pressure_pens[ps(self.pressure_labels[i]).name], label=ps(self.pressure_labels[i]).name)
-                        for i in range(len(self.flow_markers)):
-                            if self.flow_markers[i] is not None:
-                                self.pressure_plot.removeItem(self.flow_markers[i])
-                            if self.flow_labels[i] != -1:
-                                self.flow_plot.addLine(i * self.interval, pen=self.flow_pens[fs(self.flow_labels[i]).name], label=fs(self.flow_labels[i]).name)
+                        self.__clear_markers()
+                        self.__plot_markers(self.xmin, self.xmax)
                     except:
-                        Popup("Error", "Label values out of range")
+                        Popup("Error", "Annotation values out of range")
         else:
             Popup("Error", "No data loaded so labels cannot be loaded")
         
-    def __save_labels(self):
+    def __save_annotations(self):
         if self.data is not None:
             fname = QFileDialog.getSaveFileName(self, "Save File", os.getcwd(), "(*.csv)")
             if fname[0] != "":
                 labels = pd.DataFrame((self.data.iloc[:,0].values, self.pressure_labels, self.flow_labels)).T
-                labels.columns = [self.data.columns[0], self.data.columns[1] + "(labels)", self.data.columns[2] + "(labels)"]
+                labels.columns = [self.data.columns[0], self.data.columns[1] + "(annotations)", self.data.columns[2] + "(annotations)"]
                 if fname[0].find(".csv") > -1:
                     labels.to_csv(fname[0], index=False)
                 else:
@@ -178,6 +175,7 @@ class MainWindow(QMainWindow):
                 self.flow_plot.setXRange(self.flow_plot.viewRange()[0][0], self.flow_plot.viewRange()[0][0] + self.w_len * self.interval)
             
     def __init_graph(self):
+        self.__clear_markers()
         self.pressure_plot.setLabel("left", self.data.columns[1])
         self.pressure_plot.setLabel("bottom", self.data.columns[0])
         self.flow_plot.setLabel("left", self.data.columns[2])
@@ -185,7 +183,37 @@ class MainWindow(QMainWindow):
         self.pressure_plot.plot(self.data.iloc[:,0], self.data.iloc[:,1], pen=self.pressure_pen)
         self.flow_plot.plot(self.data.iloc[:,0], self.data.iloc[:,2], pen=self.flow_pen)
         self.flow_plot.setXRange(0,self.w_len * self.interval)
-        
+        self.xmin = 0
+        self.xmax = self.w_len * self.interval
+    
+    def __on_axis_change(self, event):
+        lower = int(event.viewRange()[0][0])
+        if lower < 0:
+            lower = 0
+        upper = int(event.viewRange()[0][1])
+        if upper > self.data.shape[0]:
+            upper = self.data.shape[0]
+        temp = {}
+        for key in self.pressure_markers.keys():
+            if key not in range(lower, upper):
+                self.pressure_plot.removeItem(self.pressure_markers[key])
+            else:
+                temp[key] = self.pressure_markers[key]
+        self.pressure_markers = temp
+        temp = {}
+        for key in self.flow_markers.keys():
+            if key not in range(lower, upper):
+                self.flow_plot.removeItem(self.flow_markers[key])
+            else:
+                temp[key] = self.flow_markers[key]
+        self.flow_markers = temp
+        if upper > self.xmax:
+            self.__plot_markers(self.xmax, upper)
+        elif lower < self.xmin:
+            self.__plot_markers(lower, self.xmin)
+        self.xmin = lower
+        self.xmax = upper
+    
     def __on_graph_click(self, event):
         if self.data is None:
             return
@@ -196,13 +224,15 @@ class MainWindow(QMainWindow):
                 return
             if self.pressure_labels[xind] == ps[self.pressure_choice.currentText()].value:
                 self.pressure_labels[xind] = -1
-                self.pressure_plot.removeItem(self.pressure_markers[xind])
-                self.pressure_markers[xind] = None
+                if xind in self.pressure_markers.keys():
+                    self.pressure_plot.removeItem(self.pressure_markers[xind])
+                    del(self.pressure_markers[xind])
             else:
                 self.pressure_labels[xind] = ps[self.pressure_choice.currentText()].value
-                if self.pressure_markers[xind] is not None:
+                if xind in self.pressure_markers.keys():
                     self.pressure_plot.removeItem(self.pressure_markers[xind])
-                self.pressure_markers[xind] = self.pressure_plot.addLine(x=xpos, pen=MainWindow.pressure_pens[self.pressure_choice.currentText()], label=self.pressure_choice.currentText())
+                    del(self.pressure_markers[xind])
+                self.pressure_markers[xind] = self.pressure_plot.addLine(x=xpos, pen=MainWindow.pressure_pens[self.pressure_choice.currentText()], label=self.pressure_choice.currentText(), labelOpts={"position" :(ps(self.pressure_labels[xind]).value+1)/5})
             
         elif self.flow_plot.getAxis("bottom") == event.currentItem:
             xpos = int(round(self.pressure_plot.getViewBox().mapSceneToView(event.scenePos()).x()))
@@ -211,14 +241,30 @@ class MainWindow(QMainWindow):
                 return
             if self.flow_labels[xind] == fs[self.flow_choice.currentText()].value:
                 self.flow_labels[xind] = -1
-                self.flow_plot.removeItem(self.flow_markers[xpos])
-                self.flow_markers[xind] = None
+                if xind in self.flow_markers.keys():
+                    self.flow_plot.removeItem(self.flow_markers[xpos])
+                    del(self.flow_markers[xind])
             else:
                 self.flow_labels[xind] = fs[self.flow_choice.currentText()].value
-                if self.flow_markers[xind] is not None:
+                if xind in self.flow_markers.keys():
                     self.flow_plot.removeItem(self.flow_markers[xind])
-                self.flow_markers[xind] = self.flow_plot.addLine(x=xpos, pen=MainWindow.flow_pens[self.flow_choice.currentText()], label=self.flow_choice.currentText())
-            
+                    del(self.flow_markers[xind])
+                self.flow_markers[xind] = self.flow_plot.addLine(x=xpos, pen=MainWindow.flow_pens[self.flow_choice.currentText()], label=self.flow_choice.currentText(), labelOpts={"position" : (fs(self.flow_labels[xind]).value + 1)/8})
+    
+    def __clear_markers(self):
+        for k,v in self.pressure_markers.items():
+            self.pressure_plot.removeItem(v)
+        for k,v in self.flow_markers.items():
+            self.flow_plot.removeItem(v)
+        self.pressure_markers = {}
+        self.flow_markers={}
+    
+    def __plot_markers(self, xmin,xmax):
+        for i in range(xmin, xmax):
+            if self.pressure_labels[i] != -1:
+                self.pressure_markers[i] = self.pressure_plot.addLine(i * self.interval, pen=self.pressure_pens[ps(self.pressure_labels[i]).name], label=ps(self.pressure_labels[i]).name, labelOpts={"position" :(ps(self.pressure_labels[i]).value+1)/5})
+            if self.flow_labels[i] != -1:
+                self.flow_markers[i] = self.flow_plot.addLine(i * self.interval, pen=self.flow_pens[fs(self.flow_labels[i]).name], label=fs(self.flow_labels[i]).name,labelOpts={"position" : (fs(self.flow_labels[i]).value + 1)/8})
 class DisplaySettingsDialog(QDialog):
     def __init__(self, w_len, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -247,9 +293,9 @@ class DisplaySettingsDialog(QDialog):
             if self.w_len > 0:
                 self.accept()
             else:
-                Popup("Window length must be larger than 0")
+                Popup("Error", "Window length must be larger than 0")
         else:
-            Popup("Window length must be numeric")
+            Popup("Error", "Window length must be numeric")
         
 
 class ColumnSelectionDialog(QDialog):
@@ -281,7 +327,7 @@ class ColumnSelectionDialog(QDialog):
                 self.selected_indices.append(i.column())
             self.accept()
         else:
-            Popup("Please select columns for Time, Pressure, and Flow")
+            Popup("Error", "Please select columns for Time, Pressure, and Flow")
 
 
 class TableModel(QAbstractTableModel):
