@@ -49,6 +49,8 @@ class Draeger:
         :type cols: Array like of integer
         :param correction_window: Size of window to perform baseline correction
         :type correction_window: integer
+        :param flow_unit_converter: Function to convert units of flow and flow_threshold to desired units to be displayed
+        :type flow_unit_converter: f: R->R
         :returns: None
         :rtype: None
         """

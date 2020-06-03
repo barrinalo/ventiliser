@@ -120,8 +120,6 @@ class MainWindow(QMainWindow):
             column_selection = ColumnSelectionDialog(data)
             if column_selection.exec():
                 self.data = pd.read_csv(fname[0], usecols=column_selection.selected_indices)
-                if self.data.iloc[:,0].dtype != "int64":
-                    self.data.iloc[:,0] = self.data.iloc[:,0].apply(lambda x: pd.to_datetime(x).value / 1000000) # convert to ms
                 self.data[self.data.columns[0]] -= self.data[self.data.columns[0]].min()
                 self.pressure_labels = np.array([-1] * self.data.shape[0])
                 self.flow_labels = np.array([-1] * self.data.shape[0])
@@ -325,7 +323,10 @@ class ColumnSelectionDialog(QDialog):
             self.selected_indices = []
             for i in sorted(indexes):
                 self.selected_indices.append(i.column())
-            self.accept()
+            if self.data.iloc[:,0].dtype == "int64":
+                self.accept()
+            else:
+                Popup("Error","Time column must be of type integer")
         else:
             Popup("Error", "Please select columns for Time, Pressure, and Flow")
 
