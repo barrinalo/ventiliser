@@ -10,6 +10,8 @@ import pandas as pd
 from ventiliser import preprocess as pp
 from ventiliser.StateMapper import StateMapper
 from ventiliser.PhaseLabeller import PhaseLabeller
+import json
+import datetime
 
 class Draeger:
     """ Class to process Draeger ventilator data
@@ -27,18 +29,27 @@ class Draeger:
         
     Methods
     -------
-    load_data(path, cols, correction_window)
+    load_data(path, cols, correction_window, flow_unit_converter)
         Loads a record and pre-processes it with linear interpolation and baseline correction
     load_mapper_settings(path)
         Loads the settings file and determines how to split the data up into periods to account for varying ventilator settings
-    process()
-        Runs the mapper and then the labeller process methods
+    process(log, output_files)
+        Runs the mapper and then the labeller process methods with optional logging and output of results to files
     """
     def __init__(self):
         self.tasks = None
         self.data = None
         self.mapper = StateMapper()
         self.labeller = PhaseLabeller()
+        self.config = {}
+        self.config["freq"] = 100
+        self.config["f_base"] = 0
+        self.config["w_len"] = 3
+        self.config["t_len"] = 1 / 100 * 3
+        self.config["leak_perc_thresh"] = 0.66
+        self.config["permit_double_cycling"] = False
+        self.config["insp_hold_length"] = 0.5
+        self.config["exp_hold_length"] = 0.05
         
     def load_data(self, path, cols, correction_window=None, flow_unit_converter=lambda x : x):
         """Loads the data specified by path and cols and performs linear interpolation with window average baseline correction
@@ -54,11 +65,14 @@ class Draeger:
         :returns: None
         :rtype: None
         """
+        self.config["correction_window"] = correction_window
+        self.config["input_file"] = path
         self.data = pp.pre_process_ventilation_data(path, cols)
         if correction_window is not None:
             pp.correct_baseline(self.data.iloc[:,2], correction_window)
         self.data.iloc[:,2] = flow_unit_converter(self.data.iloc[:,2])
         self.flow_threshold = flow_unit_converter(0.1)
+        self.config["flow_thresh"] = self.flow_threshold
         
     def load_mapper_settings(self, path):
         """Loads the settings file to look for changes in PEEP setting
@@ -70,6 +84,7 @@ class Draeger:
         """
         settings = pd.read_csv(path)
         self.tasks = list(settings.loc[settings["Name"]=="PEEP"].apply(lambda x: (x["Time [ms]"], x["Value New"]), axis=1))
+        self.config["peeps"] = self.tasks
     
     def _map_states(self):
         """Runs the mapper on the data with provided settings. Splits up the data into periods when differente levels of PEEP are used
@@ -99,6 +114,39 @@ class Draeger:
                 self.mapper.configure(p_base=prev_p, f_thresh=self.flow_threshold)
                 self.mapper.process(self.data.loc[period].iloc[:,1], self.data.loc[period].iloc[:,2])
             
-    def process(self):
+    def process(self, log=True, output_files=True):
+        """Processes the data after configuration and loading of data
+        
+        :param log: Flag for whether to output a log file
+        :type log: boolean
+        :param output_files: Flag for whether to output result files
+        :type output_files: boolean
+        
+        :returns: None
+        :rtype: None
+        """
+        # Start log
+        self.config["processing_start_time"] = datetime.datetime.now()
+        # Process
         self._map_states()
         self.labeller.process(self.mapper.p_labels, self.mapper.f_labels, self.data.iloc[:,1], self.data.iloc[:,2])
+        # Finish logging
+        self.config["processing_end_time"] = datetime.datetime.now()
+        self.config["time_elapsed_seconds"] = (self.config["processing_end_time"] - self.config["processing_start_time"]).seconds
+        stem = ".".join(self.config["input_file"].split(".")[:-1])
+        # Output files if flags set
+        if output_files:
+            self.labeller.get_breaths_raw().to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)
+            self.labeller.get_breaths().to_csv(stem + "_predicted_Breaths_ms.csv", index=False)
+            self.mapper.get_labels().to_csv(stem + "_predicted_Pressure_And_Flow_States.csv", index=False)
+            self.labeller.get_breath_annotations(self.data.shape[0]).to_csv(stem + "_predicted_Breaths_Annotations.csv", index=False)
+            self.config["output_files"] = [stem + "_predicted_Breaths_Raw.csv",
+                                           stem + "_predicted_Breaths_ms.csv",
+                                           stem + "_predicted_Pressure_And_Flow_States.csv",
+                                           stem + "_predicted_Breaths_Annotations.csv"]
+        if log:
+            self.config["processing_start_time"] = str(self.config["processing_start_time"])
+            self.config["processing_end_time"] = str(self.config["processing_end_time"])
+            f = open(stem + "_run_config.json","w")
+            f.write(json.dumps(self.config))
+            f.close()

@@ -148,6 +148,7 @@ class PhaseLabeller:
         :rtype: Pandas Dataframe
         """
         output = pd.concat([pd.Series(range(N)), pd.Series([-1] * N), pd.Series([-1] * N)], axis=1)
+        output.columns = ["index","pressure_annotations","flow_annotations"]
         breaths = self.get_breaths_raw()
         for p in p_states:
             if p == ps.pressure_rise:
@@ -174,6 +175,7 @@ class PhaseLabeller:
                 output.iloc[breaths["peak_expiratory_flow_start"],2] = fs.peak_expiratory_flow.value
             elif f == fs.expiration_termination:
                 output.iloc[breaths["expiration_termination_start"],2] = fs.expiration_termination.value
+        output = output.loc[output.iloc[:,1:].apply(lambda x : x.sum() != -2, axis=1)]
         return output
     
     def __get_next_breath(self, labels, start):
