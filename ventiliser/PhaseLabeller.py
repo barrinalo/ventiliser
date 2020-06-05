@@ -264,7 +264,7 @@ class PhaseLabeller:
         else:
             return (idx, labels[:idx], labels[idx:])
     
-    def __maximise_information_gain_backup(self, labels, target_classes):
+    def __maximise_information_gain_1(self, labels, target_classes):
         some_exists = False
         for target_class in target_classes:
             if target_class in labels:
@@ -279,15 +279,19 @@ class PhaseLabeller:
                 return(1, labels, np.array([]))
             return (0, np.array([]), labels)
         else:
-            pivot = len(labels) // 2
+            pivot = len(labels)//2
             left_inf = self.__sum_information([labels[:pivot]], target_classes)
             right_inf = self.__sum_information([labels[pivot:]], target_classes)
-            if left_inf > right_inf:
+            if left_inf > 0.3 and right_inf > 0.3:
+                idx, prev_labels, post_labels = self.__maximise_information_gain(labels[pivot:], target_classes)
+                return(idx + pivot, np.concatenate([labels[:pivot], prev_labels]), post_labels)
+            elif left_inf > right_inf:
                 idx, prev_labels, post_labels = self.__maximise_information_gain(labels[:pivot], target_classes)
                 return (idx, prev_labels, np.concatenate([post_labels,labels[pivot:]]))
             else:
                 idx, prev_labels, post_labels = self.__maximise_information_gain(labels[pivot:], target_classes)
                 return(idx + pivot, np.concatenate([labels[:pivot], prev_labels]), post_labels)
+            
        
     def __information_approach(self, p_labels, f_labels, breath):
         """Tries to identify sub-phases of each breath based on maximising information gain on splitting
@@ -340,7 +344,7 @@ class PhaseLabeller:
         breath.pressure_drop_start, _, labels = self.__maximise_information_gain(labels, [ps.pip])
         breath.pressure_drop_start += breath.pip_start
         # Find peep start by finding start of split
-        breath.peep_start, _, labels = self.__maximise_information_gain(labels, [ps.peep])
+        breath.peep_start, _, labels = self.__maximise_information_gain(labels, [ps.pressure_drop])
         breath.peep_start += breath.pressure_drop_start
         # Find pressure rise start by finding start of split
         breath.pressure_rise_start, _, labels = self.__maximise_information_gain(p_labels[:breath.pip_start - breath.breath_start], [ps.peep])

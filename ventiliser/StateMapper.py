@@ -294,3 +294,7 @@ class StateMapper:
         else:
             self.process_pressures(pressures, p_0)
             self.process_flows(flows, f_0)
+        if len(self.p_labels) > len(pressures):
+            self.p_labels = self.p_labels[:len(pressures)]
+        if len(self.f_labels) > len(flows):
+            self.f_labels = self.f_labels[:len(flows)]

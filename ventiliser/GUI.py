@@ -8,6 +8,7 @@ Created on Sun May  3 12:31:52 2020
 from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QDialog, QDialogButtonBox, QAction, QTableView, QFileDialog, QLabel, QLineEdit, QHBoxLayout, QComboBox, QWidget
 from PyQt5.QtCore import Qt, QAbstractTableModel
 import pyqtgraph as pg
+import pyqtgraph.exporters
 import os
 import pandas as pd
 import numpy as np
