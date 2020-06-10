@@ -146,7 +146,7 @@ class GeneralPipeline:
         self.labeller.process(self.mapper.p_labels, self.mapper.f_labels,
                               self.data.iloc[:,1], self.data.iloc[:,2])
         self.config["processing_end_time"] = datetime.datetime.now()
-        self.config["time_elapsed_seconds"] = (self.config["processing_end_time"] - self.config["processing_start_time"]).seconds
+        self.config["time_elapsed"] = str(self.config["processing_end_time"] - self.config["processing_start_time"])
         stem = ".".join(self.config["input_file"].split(".")[:-1])
         if output_files:
             self.labeller.get_breaths_raw().to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)

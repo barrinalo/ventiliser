@@ -66,7 +66,7 @@ class Evaluation:
         """
         output = BreathVariables()
         for attr in x.index:
-            setattr(output, attr, x[attr])
+            setattr(output, attr, int(x[attr]))
         return output
     
     def __init__(self, pressures, flows, breaths, freq):

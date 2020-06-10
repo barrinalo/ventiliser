@@ -132,7 +132,7 @@ class Draeger:
         self.labeller.process(self.mapper.p_labels, self.mapper.f_labels, self.data.iloc[:,1], self.data.iloc[:,2])
         # Finish logging
         self.config["processing_end_time"] = datetime.datetime.now()
-        self.config["time_elapsed_seconds"] = (self.config["processing_end_time"] - self.config["processing_start_time"]).seconds
+        self.config["time_elapsed_ms"] = str(self.config["processing_end_time"] - self.config["processing_start_time"])
         stem = ".".join(self.config["input_file"].split(".")[:-1])
         # Output files if flags set
         if output_files:

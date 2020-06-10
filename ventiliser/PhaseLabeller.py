@@ -147,35 +147,37 @@ class PhaseLabeller:
         :returns: Dataframe containing keypoints at each index of the data on which the analysis was performed
         :rtype: Pandas Dataframe
         """
-        output = pd.concat([pd.Series(range(N)), pd.Series([-1] * N), pd.Series([-1] * N)], axis=1)
-        output.columns = ["index","pressure_annotations","flow_annotations"]
+        output = np.full((N,3), -1)
+        output[:,0] = np.arange(N)
         breaths = self.get_breaths_raw()
         for p in p_states:
             if p == ps.pressure_rise:
-                output.iloc[breaths["pressure_rise_start"]-1,1] = ps.pressure_rise.value
+                output[breaths["pressure_rise_start"]-1,1] = ps.pressure_rise.value
             elif p == ps.pip:
-                output.iloc[breaths["pip_start"]-1,1] = ps.pip.value
+                output[breaths["pip_start"]-1,1] = ps.pip.value
             elif p == ps.pressure_drop:
-                output.iloc[breaths["pressure_drop_start"]-1,1] = ps.pressure_drop.value
+                output[breaths["pressure_drop_start"]-1,1] = ps.pressure_drop.value
             elif p == ps.peep:
-                output.iloc[breaths["peep_start"]-1,1] = ps.peep.value
+                output[breaths["peep_start"]-1,1] = ps.peep.value
         for f in f_states:
             if f == fs.inspiration_initiation:
-                output.iloc[breaths["inspiration_initiation_start"]-1,2] = fs.inspiration_initiation.value
+                output[breaths["inspiration_initiation_start"]-1,2] = fs.inspiration_initiation.value
             elif f == fs.peak_inspiratory_flow:
-                output.iloc[breaths["peak_inspiratory_flow_start"]-1,2] = fs.peak_inspiratory_flow.value
+                output[breaths["peak_inspiratory_flow_start"]-1,2] = fs.peak_inspiratory_flow.value
             elif f == fs.inspiration_termination:
-                output.iloc[breaths["inspiration_termination_start"]-1,2] = fs.inspiration_termination.value
+                output[breaths["inspiration_termination_start"]-1,2] = fs.inspiration_termination.value
             elif f == fs.no_flow:
-                output.iloc[breaths["inspiratory_hold_start"]-1,2] = fs.no_flow.value
-                output.iloc[breaths["expiratory_hold_start"]-1,2] = fs.no_flow.value
+                output[breaths["inspiratory_hold_start"]-1,2] = fs.no_flow.value
+                output[breaths["expiratory_hold_start"]-1,2] = fs.no_flow.value
             elif f == fs.expiration_initiation:
-                output.iloc[breaths["expiration_initiation_start"]-1,2] = fs.expiration_initiation.value
+                output[breaths["expiration_initiation_start"]-1,2] = fs.expiration_initiation.value
             elif f == fs.peak_expiratory_flow:
-                output.iloc[breaths["peak_expiratory_flow_start"]-1,2] = fs.peak_expiratory_flow.value
+                output[breaths["peak_expiratory_flow_start"]-1,2] = fs.peak_expiratory_flow.value
             elif f == fs.expiration_termination:
-                output.iloc[breaths["expiration_termination_start"]-1,2] = fs.expiration_termination.value
-        output = output.loc[output.iloc[:,1:].apply(lambda x : x.sum() != -2, axis=1)]
+                output[breaths["expiration_termination_start"]-1,2] = fs.expiration_termination.value
+        output = output[output[:,1:].sum(axis=1) != -2,:]
+        output = pd.DataFrame(output)
+        output.columns = ["index","pressure_annotations","flow_annotations"]
         return output
     
     def __get_next_breath(self, labels, start):
@@ -250,48 +252,30 @@ class PhaseLabeller:
                 some_exists = True
                 break
         if not some_exists:
-            return (0, None, labels)
-        idx = -1
-        infgain = -1
-        totalinf = self.__sum_information([labels], target_classes)
-        for i in range(self.w_len, len(labels), self.w_len):
-            remaininginf = self.__sum_information([labels[:i], labels[i:]], target_classes)
-            if (infgain == -1 or infgain < totalinf - remaininginf) and not np.isnan(totalinf - remaininginf):
-                infgain = totalinf - remaininginf
-                idx = i
-        if idx < 0:
-            return (0, None, labels)
-        else:
-            return (idx, labels[:idx], labels[idx:])
-    
-    def __maximise_information_gain_1(self, labels, target_classes):
-        some_exists = False
-        for target_class in target_classes:
-            if target_class in labels:
-                some_exists = True
-                break
-        if not some_exists:
             return (0, np.array([]), labels)
         if len(labels) == 0:
             return (0, np.array([]), labels)
         elif len(labels) == 1:
             for target_class in target_classes:
-                return(1, labels, np.array([]))
+                if target_class in labels:
+                    return(1, labels, np.array([]))
             return (0, np.array([]), labels)
-        else:
-            pivot = len(labels)//2
-            left_inf = self.__sum_information([labels[:pivot]], target_classes)
-            right_inf = self.__sum_information([labels[pivot:]], target_classes)
-            if left_inf > 0.3 and right_inf > 0.3:
-                idx, prev_labels, post_labels = self.__maximise_information_gain(labels[pivot:], target_classes)
-                return(idx + pivot, np.concatenate([labels[:pivot], prev_labels]), post_labels)
-            elif left_inf > right_inf:
-                idx, prev_labels, post_labels = self.__maximise_information_gain(labels[:pivot], target_classes)
-                return (idx, prev_labels, np.concatenate([post_labels,labels[pivot:]]))
-            else:
-                idx, prev_labels, post_labels = self.__maximise_information_gain(labels[pivot:], target_classes)
-                return(idx + pivot, np.concatenate([labels[:pivot], prev_labels]), post_labels)
-            
+        # Find p
+        xlen = len(labels)
+        forward = np.arange(1,xlen)
+        backward = np.arange(xlen-1,0,step=-1)
+        p = 0
+        p2 = 0
+        for target_class in target_classes:
+            p += (labels == target_class).cumsum()[:-1]
+        p2 = (p[-1] - np.copy(p)) / backward
+        p = p / forward
+        inf = ((-p * np.log(p + 1E-7)) * forward + (-p2 * np.log(p2 + 1E-7)) * backward) / xlen
+        p_prime = 1-p
+        p2_prime = 1-p2
+        inf += ((-p_prime * np.log(p_prime + 1E-7 )) * forward + (-p2_prime * np.log(p2_prime + 1E-7)) * backward) / xlen
+        idx = np.argmin(inf) + 1
+        return (idx, labels[:idx], labels[idx:])
        
     def __information_approach(self, p_labels, f_labels, breath):
         """Tries to identify sub-phases of each breath based on maximising information gain on splitting
@@ -322,15 +306,16 @@ class PhaseLabeller:
         # Find Peak expiratory flow start by finding end of split
         breath.peak_expiratory_flow_start, _, labels = self.__maximise_information_gain(labels, [fs.expiration_initiation])
         breath.peak_expiratory_flow_start += breath.inspiratory_hold_start
-        # Find Expiration Termination Start by finding end of split
-        breath.expiration_termination_start, _, labels = self.__maximise_information_gain(labels, [fs.peak_expiratory_flow])
-        breath.expiration_termination_start += breath.peak_expiratory_flow_start
-        # Find Expiratory hold start by finding start of split
+        # Find Expiratory hold start by finding end of split
         no_flow, _, labels = self.__maximise_information_gain(labels, [fs.no_flow])
         if no_flow == 0:
             breath.expiratory_hold_start = breath.breath_end
         else:
-            breath.expiratory_hold_start = breath.expiration_termination_start + no_flow
+            breath.expiratory_hold_start = breath.peak_expiratory_flow_start + no_flow        
+        # Find Expiration Termination Start by finding end of split
+        templabels = f_labels[breath.peak_expiratory_flow_start - breath.breath_start : breath.expiratory_hold_start - breath.breath_start]
+        breath.expiration_termination_start, _, labels = self.__maximise_information_gain(templabels, [fs.peak_expiratory_flow])
+        breath.expiration_termination_start += breath.peak_expiratory_flow_start
         # Find expiration initiation start by finding end of split
         templabels = f_labels[breath.inspiratory_hold_start - breath.breath_start : breath.peak_expiratory_flow_start - breath.breath_start]
         breath.expiration_initiation_start, _, labels = self.__maximise_information_gain(templabels, [fs.no_flow])

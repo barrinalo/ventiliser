@@ -81,7 +81,7 @@ class StateMapper:
         :rtype: Pandas dataframe of integer
         """
         return pd.DataFrame({"Pressure_States" : [x.value for x in self.p_labels], "Flow_States" : [x.value for x in self.f_labels]})
-    
+            
     def process_pressures(self, pressures, p_0=ps.peep, con=None, reporter=None):
         """Maps data points from pressure to enumerated states
         
@@ -103,76 +103,60 @@ class StateMapper:
         elif len(pressures) < self.w_len:
             return
         
-        if type(pressures) is not np.array:
-            p = np.array(pressures)
-        else:
-            p = pressures
-        # Pad before begin processing
-        p_labels = [p_0] * self.w_len
-        w_mean_i = np.mean(p[:self.w_len])
-        w_std_i = np.std(p[:self.w_len])
-        p_hold = self.p_base
+        output = np.array([ps(p_0)] * len(pressures))
+        pressures = np.array(pressures).reshape(-1, self.w_len)
+        pressure_means = np.mean(pressures, axis=1)
+        pressure_mean_deltas = pressure_means[1:] - pressure_means[:-1]
+        pressure_stds = np.std(pressures, axis=1)
+        prev_label = ps(p_0)
+        prev_pressure_hold = self.p_base
         if reporter != None:
             register_reporter(reporter)
-        for i in atpbar(range(self.w_len, len(p), self.w_len), name="Labelling pressure states"):
-            w_mean_i, w_std_i, p_label, p_hold = self.__calculate_pressure_window(w_mean_i, w_std_i, p_labels[-1], p_hold, p, i)
-            p_labels += [p_label] * self.w_len
-        
-        if len(self.p_labels) > 0:
-            p_labels = p_labels[self.w_len-1:]
-            
-        if con is not None:
-            con.put(p_labels)
-        else:
-            self.p_labels = np.concatenate((self.p_labels, p_labels))
-            
-    def __calculate_pressure_window(self, w_mean_i, w_std_i, prev_label, prev_pressure_hold, p, i_1):
-        """Calculates pressure mean and std for current window and compares it with previous window
-        
-        :param w_mean_i: Mean of the previous window pressure
-        :type w_mean_i: real
-        :param w_std_i: Standard deviation of the previous window pressure
-        :type w_std_i: real
-        :param prev_label: Previous pressure label
-        :type prev_label: PressureStates enum
-        :param prev_pressure_hold: Previous pressure when a hold state occurred
-        :type prev_pressure_hold: real
-        :param p: Pressure data points
-        :type p: Array like of real
-        :param i_1: The index for the current window
-        :type i_1: integer
-        :returns: 4-Tuple containing current window mean, standard deviation, pressure state enum, and previous pressure hold
-        :rtype: (real, real, PressureStates enum, real)
-        """
-        w_mean_i_1 = np.mean(p[i_1:i_1 + self.w_len])
-        w_std_i_1 = np.std(p[i_1:i_1 + self.w_len])
-        w_mean_delta = w_mean_i_1 - w_mean_i
-        
-        # If standard deviation is too small, set it to a minimum threshold
-        if w_std_i < 0.1 * self.p_base:
-            w_std_i = self.p_base * 0.05
-        
-        # Process stationary states
-        if abs(w_mean_delta) < 2 * w_std_i:
-            # Process for PIP
-            if w_mean_i_1 > (self.p_base + prev_pressure_hold) / 2 + 2 * w_std_i:
-                if prev_label is not ps.pip:
-                    return (w_mean_i_1, w_std_i_1, ps.pip, w_mean_i_1)
-                else:
-                    return (w_mean_i_1, w_std_i_1, ps.pip, prev_pressure_hold)
+        for i in atpbar(range(len(pressure_means)-1), name="Labelling pressure states"):
+            if pressure_stds[i] < 0.1 * self.p_base:
+                w_std_i = 0.05 * self.p_base
             else:
-                # Process PEEP
-                if prev_label is not ps.peep:
-                    return (w_mean_i_1, w_std_i_1, ps.peep, w_mean_i_1)
+                w_std_i = pressure_stds[i]
+            w_mean_delta = pressure_mean_deltas[i]
+            w_mean_i_1 = pressure_means[i+1]
+            curpos = (i+1) * self.w_len
+            # If standard deviation is too small, set it to a minimum threshold
+            if w_std_i < 0.1 * self.p_base:
+                w_std_i = self.p_base * 0.05
+            
+            # Process stationary states
+            if abs(w_mean_delta) < 2 * w_std_i:
+                # Process for PIP
+                if w_mean_i_1 > (self.p_base + prev_pressure_hold) / 2 + 2 * w_std_i:
+                    if prev_label is not ps.pip:
+                        output[curpos:curpos + self.w_len] = ps.pip
+                        prev_pressure_hold = pressure_means[i+1]
+                        prev_label = ps.pip
+                    else:
+                        output[curpos:curpos + self.w_len] = ps.pip
+                        prev_label = ps.pip
                 else:
-                    return (w_mean_i_1, w_std_i_1, ps.peep, prev_pressure_hold)
-        elif w_mean_delta > 0:
-            # Process pressure rise
-            return (w_mean_i_1, w_std_i_1, ps.pressure_rise, prev_pressure_hold)
+                    # Process PEEP
+                    if prev_label is not ps.peep:
+                        output[curpos:curpos + self.w_len] = ps.peep
+                        prev_pressure_hold = pressure_means[i+1]
+                        prev_label = ps.peep
+                    else:
+                        output[curpos:curpos + self.w_len] = ps.peep
+                        prev_label = ps.peep
+            elif w_mean_delta > 0:
+                # Process pressure rise
+                output[curpos:curpos + self.w_len] = ps.pressure_rise
+                prev_label = ps.pressure_rise
+            else:
+                # Process pressure drop
+                output[curpos:curpos + self.w_len] = ps.pressure_drop
+                prev_label = ps.pressure_drop
+        if con is not None:
+            con.put(output)
         else:
-            # Process pressure drop
-            return (w_mean_i_1, w_std_i_1, ps.pressure_drop, prev_pressure_hold)
-        
+            self.p_labels = np.concatenate([self.p_labels, output])
+            
     def process_flows(self, flows, f_0=0, con=None, reporter=None):
         """Maps data points from pressure to enumerated states
         
@@ -193,77 +177,49 @@ class StateMapper:
             con.put(np.array([]))
         elif len(flows) < self.w_len:
             return
-        
-        if type(flows) is not np.array:
-            f = np.array(flows)
-        else:
-            f = flows
-        
-        # Pad before begin processing
-        f_labels = [f_0] * self.w_len
-        w_mean_i = np.mean(f[:self.w_len])
-        w_std_i = np.std(f[:self.w_len])
+        output = np.array([fs(f_0)] * len(flows))
+        flows = np.array(flows).reshape(-1, self.w_len)
+        flow_means = np.mean(flows, axis=1)
+        flow_mean_deltas = flow_means[1:] - flow_means[:-1]
+        flow_stds = np.std(flows, axis=1)
         if reporter != None:
             register_reporter(reporter)
-        for i in atpbar(range(self.w_len, len(f), self.w_len), name="Labelling flow states"):
-            w_mean_i, w_std_i, f_label = self.__calculate_flow_window(w_mean_i, w_std_i, f_labels[-1], f, i)
-            f_labels += [f_label] * self.w_len
-            
-        if len(self.f_labels) > 0:
-            f_labels = f_labels[self.w_len-1:]
-            
+        for i in atpbar(range(len(flow_means)-1), name="Labelling flow states"):
+            if flow_stds[i] < self.f_thresh:
+                w_std_i = self.f_thresh
+            else:
+                w_std_i = flow_stds[i]
+            w_mean_delta = flow_mean_deltas[i]
+            w_mean_i_1 = flow_means[i+1]
+            curpos = (i+1) * self.w_len
+            if abs(w_mean_delta) < 2 * w_std_i:
+                if w_mean_i_1 > self.f_base + 2 * w_std_i:
+                    # Process Peak Inspiratory Flow
+                    output[curpos:curpos + self.w_len] = fs.peak_inspiratory_flow
+                elif w_mean_i_1 < self.f_base - 2 * w_std_i:
+                    # Process Peak Expiratory Flow
+                    output[curpos:curpos + self.w_len] = fs.peak_expiratory_flow
+                else:
+                    # Process No Flow
+                    output[curpos:curpos + self.w_len] = fs.no_flow
+            elif w_mean_i_1 > self.f_base:
+                if w_mean_delta > 0:
+                    # Process Inspiration Initiation
+                    output[curpos:curpos + self.w_len] = fs.inspiration_initiation
+                else:
+                    # Process Inspiration Termination
+                    output[curpos:curpos + self.w_len] = fs.inspiration_termination
+            else:
+                if w_mean_delta < 0:
+                    # Process Expiration Initiation
+                    output[curpos:curpos + self.w_len] = fs.expiration_initiation
+                else:
+                    # Process Expiration Termination
+                    output[curpos:curpos + self.w_len] = fs.expiration_termination
         if con is not None:
-            con.put(f_labels)
+            con.put(output)
         else:
-            self.f_labels = np.concatenate((self.f_labels, f_labels))
-    
-    def __calculate_flow_window(self, w_mean_i, w_std_i, prev_label, f, i_1):
-        """Calculates flow mean and std for current window and compares it with previous window
-        
-        :param w_mean_i: Mean of the previous window flow
-        :type w_mean_i: real
-        :param w_std_i: Standard deviation of the previous window flow
-        :type w_std_i: real
-        :param prev_label: Previous flow label
-        :type prev_label: FlowStates enum
-        :param p: Flow data points
-        :type p: Array like of real
-        :param i_1: The index for the current window
-        :type i_1: integer
-        :returns: 3-Tuple containing current window mean, standard deviation, and flow state enum
-        :rtype: (real, real, FlowStates enum)
-        """
-        w_mean_i_1 = np.mean(f[i_1:i_1 + self.w_len])
-        w_std_i_1 = np.std(f[i_1:i_1 + self.w_len])
-        w_mean_delta = w_mean_i_1 - w_mean_i
-        if w_std_i < self.f_thresh:
-            w_std_i = self.f_thresh
-        
-        # Process stationary states
-        if abs(w_mean_delta) < 2 * w_std_i:
-            if w_mean_i_1 > self.f_base + 2 * w_std_i:
-                # Process Peak Inspiratory Flow
-                return (w_mean_i_1, w_std_i_1, fs.peak_inspiratory_flow)
-            elif w_mean_i_1 < self.f_base - 2 * w_std_i:
-                # Process Peak Expiratory Flow
-                return (w_mean_i_1, w_std_i_1, fs.peak_expiratory_flow)
-            else:
-                # Process No Flow
-                return (w_mean_i_1, w_std_i_1, fs.no_flow)
-        elif w_mean_i_1 > self.f_base:
-            if w_mean_delta > 0:
-                # Process Inspiration Initiation
-                return(w_mean_i_1, w_std_i_1, fs.inspiration_initiation)
-            else:
-                # Process Inspiration Termination
-                return(w_mean_i_1, w_std_i_1, fs.inspiration_termination)
-        else:
-            if w_mean_delta < 0:
-                # Process Expiration Initiation
-                return(w_mean_i_1, w_std_i_1, fs.expiration_initiation)
-            else:
-                # Process Inspiration Termination
-                return(w_mean_i_1, w_std_i_1, fs.expiration_termination)
+            self.f_labels = np.concatenate([self.f_labels, output])
         
     def process(self, pressures, flows, p_0=ps.peep, f_0=fs.no_flow):
         """Maps data points from pressure and flow to enumerated states
