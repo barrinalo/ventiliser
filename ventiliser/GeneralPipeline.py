@@ -149,8 +149,14 @@ class GeneralPipeline:
         self.config["time_elapsed"] = str(self.config["processing_end_time"] - self.config["processing_start_time"])
         stem = ".".join(self.config["input_file"].split(".")[:-1])
         if output_files:
-            self.labeller.get_breaths_raw().to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)
-            self.labeller.get_breaths().to_csv(stem + "_predicted_Breaths_ms.csv", index=False)
+            breaths_raw = self.labeller.get_breaths_raw()
+            breaths_raw["max_expiratory_flow"] = breaths_raw["max_expiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths_raw["max_inspiratory_flow"] = breaths_raw["max_inspiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths_raw.to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)
+            breaths = self.labeller.get_breaths()
+            breaths["max_expiratory_flow"] = breaths["max_expiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths["max_inspiratory_flow"] = breaths["max_inspiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths.to_csv(stem + "_predicted_Breaths_ms.csv", index=False)
             self.mapper.get_labels().to_csv(stem + "_predicted_Pressure_And_Flow_States.csv", index=False)
             self.labeller.get_breath_annotations(self.data.shape[0]).to_csv(stem + "_predicted_Breaths_Annotations.csv", index=False)
             self.config["output_files"] = [stem + "_predicted_Breaths_Raw.csv",

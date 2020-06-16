@@ -65,6 +65,7 @@ class Draeger:
         :returns: None
         :rtype: None
         """
+        self.flow_unit_converter = flow_unit_converter
         self.config["correction_window"] = correction_window
         self.config["input_file"] = path
         self.data = pp.pre_process_ventilation_data(path, cols)
@@ -136,8 +137,14 @@ class Draeger:
         stem = ".".join(self.config["input_file"].split(".")[:-1])
         # Output files if flags set
         if output_files:
-            self.labeller.get_breaths_raw().to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)
-            self.labeller.get_breaths().to_csv(stem + "_predicted_Breaths_ms.csv", index=False)
+            breaths_raw = self.labeller.get_breaths_raw()
+            breaths_raw["max_expiratory_flow"] = breaths_raw["max_expiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths_raw["max_inspiratory_flow"] = breaths_raw["max_inspiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths_raw.to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)
+            breaths = self.labeller.get_breaths()
+            breaths["max_expiratory_flow"] = breaths["max_expiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths["max_inspiratory_flow"] = breaths["max_inspiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths.to_csv(stem + "_predicted_Breaths_ms.csv", index=False)
             self.mapper.get_labels().to_csv(stem + "_predicted_Pressure_And_Flow_States.csv", index=False)
             self.labeller.get_breath_annotations(self.data.shape[0]).to_csv(stem + "_predicted_Breaths_Annotations.csv", index=False)
             self.config["output_files"] = [stem + "_predicted_Breaths_Raw.csv",
