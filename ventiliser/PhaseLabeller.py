@@ -216,27 +216,6 @@ class PhaseLabeller:
         breath.breath_start = start
         breath.breath_end = len(labels)
         return breath
-
-    def __sum_information(self, groups, target_classes):
-        """Calculates the total information across multiple groups based on a target classes vs everything else
-        
-        :param groups: A list of arrays containing classes
-        :type groups: Array like of Array like
-        :param target_classes: An array of classes to consider as a single category when calculating information
-        :type target_classes: Array like
-        """
-        totallen = np.sum([len(x) for x in groups])
-        inf = 0
-        for x in groups:
-            xlen = len(x)
-            class_sum = 0
-            for target_class in target_classes:
-                class_sum += np.sum(x == target_class)
-            p = class_sum / xlen
-            inf += -p * np.log(p + 1E-7) * xlen / totallen
-            p = (xlen - class_sum) / xlen
-            inf += -p * np.log(p + 1E-7) * xlen / totallen
-        return inf
     
     def __maximise_information_gain(self, labels, target_classes):
         """Finds the split on the given labels which maximises information gain
@@ -325,12 +304,15 @@ class PhaseLabeller:
         # Find pip start by finding end of split
         breath.pip_start, _, labels = self.__maximise_information_gain(labels, [ps.pressure_rise])
         breath.pip_start += breath.breath_start
+        
         # Find pressure drop start by finding end of split
         breath.pressure_drop_start, _, labels = self.__maximise_information_gain(labels, [ps.pip])
         breath.pressure_drop_start += breath.pip_start
+        
         # Find peep start by finding start of split
         breath.peep_start, _, labels = self.__maximise_information_gain(labels, [ps.pressure_drop])
         breath.peep_start += breath.pressure_drop_start
+        
         # Find pressure rise start by finding start of split
         breath.pressure_rise_start, _, labels = self.__maximise_information_gain(p_labels[:breath.pip_start - breath.breath_start], [ps.peep])
         breath.pressure_rise_start += breath.breath_start

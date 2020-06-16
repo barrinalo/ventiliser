@@ -186,7 +186,7 @@ class StateMapper:
             register_reporter(reporter)
         for i in atpbar(range(len(flow_means)-1), name="Labelling flow states"):
             if flow_stds[i] < self.f_thresh:
-                w_std_i = self.f_thresh
+                w_std_i = 0.5 * self.f_thresh
             else:
                 w_std_i = flow_stds[i]
             w_mean_delta = flow_mean_deltas[i]
