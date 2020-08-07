@@ -26,15 +26,8 @@ class Draeger:
         Used for performing the state mapping phase
     labeller : PhaseLabeller object
         Used for peforming the segmentation and sub-phase labelling steps. Also will contain breaths after processing.
-        
-    Methods
-    -------
-    load_data(path, cols, correction_window, flow_unit_converter)
-        Loads a record and pre-processes it with linear interpolation and baseline correction
-    load_mapper_settings(path)
-        Loads the settings file and determines how to split the data up into periods to account for varying ventilator settings
-    process(log, output_files)
-        Runs the mapper and then the labeller process methods with optional logging and output of results to files
+    config : Dictionary
+        Used to store configuration details for logging
     """
     def __init__(self):
         self.tasks = None
@@ -44,7 +37,6 @@ class Draeger:
         self.config = {}
         self.config["freq"] = 100
         self.config["f_base"] = 0
-        self.config["w_len"] = 3
         self.config["t_len"] = 1 / 100 * 3
         self.config["leak_perc_thresh"] = 0.66
         self.config["permit_double_cycling"] = False
@@ -52,19 +44,25 @@ class Draeger:
         self.config["exp_hold_length"] = 0.05
         
     def load_data(self, path, cols, correction_window=None, flow_unit_converter=lambda x : x):
-        """Loads the data specified by path and cols and performs linear interpolation with window average baseline correction
-        
-        :param path: Path to data file
-        :type path: string
-        :param cols: Columns in the data file corresponding to time, pressure, and flow respectively
-        :type cols: Array like of integer
-        :param correction_window: Size of window to perform baseline correction
-        :type correction_window: integer
-        :param flow_unit_converter: Function to convert units of flow and flow_threshold to desired units to be displayed
-        :type flow_unit_converter: f: R->R
-        :returns: None
-        :rtype: None
         """
+        Loads the data specified by path and cols and performs linear interpolation with window average baseline correction
+        
+        Parameters
+        ----------
+        path : string
+            Path to the data file
+        cols : array like of int
+            Columns in the data file corresponding to time, pressure, and flow respectively
+        correction_window : int, optional
+            Size of the window to perform baseline correction by centering on average. Defaults to None (no correction).
+        flow_unit_converter : f: real -> real, optional
+            Function to convert units of flow and flow_threshold to desired units to be displayed. Defaults to the identity function.
+        
+        Returns
+        -------
+        None
+        """
+        self.flow_unit_converter = flow_unit_converter
         self.config["correction_window"] = correction_window
         self.config["input_file"] = path
         self.data = pp.pre_process_ventilation_data(path, cols)
@@ -75,22 +73,29 @@ class Draeger:
         self.config["flow_thresh"] = self.flow_threshold
         
     def load_mapper_settings(self, path):
-        """Loads the settings file to look for changes in PEEP setting
+        """
+        Loads the settings file to look for changes in PEEP setting
         
-        :param path: Path to settings file
-        :type path: string
-        :returns: None
-        :rtype: None
+        Parameters
+        ----------
+        path : string
+            Path to the settings file
+            
+        Returns
+        -------
+        None
         """
         settings = pd.read_csv(path)
         self.tasks = list(settings.loc[settings["Name"]=="PEEP"].apply(lambda x: (x["Time [ms]"], x["Value New"]), axis=1))
         self.config["peeps"] = self.tasks
     
     def _map_states(self):
-        """Runs the mapper on the data with provided settings. Splits up the data into periods when differente levels of PEEP are used
+        """
+        Runs the mapper on the data with provided settings. Splits up the data into periods when differente levels of PEEP are used
         
-        :returns: None
-        :rtype: None
+        Returns
+        -------
+        None
         """
         if self.data is None:
             print("Error: No data has been loaded")
@@ -115,15 +120,19 @@ class Draeger:
                 self.mapper.process(self.data.loc[period].iloc[:,1], self.data.loc[period].iloc[:,2])
             
     def process(self, log=True, output_files=True):
-        """Processes the data after configuration and loading of data
+        """
+        Processes the data after configuration and loading of data
         
-        :param log: Flag for whether to output a log file
-        :type log: boolean
-        :param output_files: Flag for whether to output result files
-        :type output_files: boolean
+        Parameters
+        ----------
+        log : boolean, optional
+            Flag to decide whether to create output logs for the analysis. Defaults to True
+        output_files : boolean, optional
+            Flag to decide whether to create output files. Defaults to True
         
-        :returns: None
-        :rtype: None
+        Returns
+        -------
+        None
         """
         # Start log
         self.config["processing_start_time"] = datetime.datetime.now()
@@ -136,8 +145,14 @@ class Draeger:
         stem = ".".join(self.config["input_file"].split(".")[:-1])
         # Output files if flags set
         if output_files:
-            self.labeller.get_breaths_raw().to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)
-            self.labeller.get_breaths().to_csv(stem + "_predicted_Breaths_ms.csv", index=False)
+            breaths_raw = self.labeller.get_breaths_raw()
+            breaths_raw["max_expiratory_flow"] = breaths_raw["max_expiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths_raw["max_inspiratory_flow"] = breaths_raw["max_inspiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths_raw.to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)
+            breaths = self.labeller.get_breaths()
+            breaths["max_expiratory_flow"] = breaths["max_expiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths["max_inspiratory_flow"] = breaths["max_inspiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths.to_csv(stem + "_predicted_Breaths_ms.csv", index=False)
             self.mapper.get_labels().to_csv(stem + "_predicted_Pressure_And_Flow_States.csv", index=False)
             self.labeller.get_breath_annotations(self.data.shape[0]).to_csv(stem + "_predicted_Breaths_Annotations.csv", index=False)
             self.config["output_files"] = [stem + "_predicted_Breaths_Raw.csv",

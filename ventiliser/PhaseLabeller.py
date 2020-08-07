@@ -18,9 +18,11 @@ class PhaseLabeller:
     
     Attributes
     ----------
+    breaths : array like of BreathVariables
+        Array containing the BreathVariables after calling process
     freq : real
         Sampling rate for the record to be processed
-    hold_length : integer
+    max_hold : integer
         Threshold in number of data points for the amount of time a breath can be in a no flow state before considered termintated
     leak_perc_thresh : real
         The proportion of leak permitted before breath is conidered physiologically implausible and to be flagged for merging in post processing
@@ -29,38 +31,32 @@ class PhaseLabeller:
     permit_double_cycling : boolean
         Decide whether to merge double cycles in post-processing
     
-    Methods
-    -------
-    configure(w_len=3, freq=100, hold_length=0.5, leak_perc_thresh=0.33, exp_hold_len=0.05, permit_double_cycling = False)
-        Set constants for processing
-    process(p_labels, f_labels, pressures, flows, post_processing=True)
-        Performs the segmentation and phase labelling
-    get_breaths(length_units)
-        Returns the segmented breaths and calculated features as a pandas dataframe modifying length variables given the sampling rate. See BreathVariables for list of variables returned
-    get_breaths_raw()
-        Returns the segmented breaths and calculated features as a pandas dataframe. See BreathVariables for list of variables returned
     """
     def __init__(self):
         self.configure()
     
-    def configure(self, w_len=3, freq=100, hold_length=0.5, leak_perc_thresh=0.66, exp_hold_len=0.05, permit_double_cycling = False):
-        """ Sets the constants for segmentation and post-processing
+    def configure(self, freq=100, hold_length=0.5, leak_perc_thresh=0.66, exp_hold_len=0.05, permit_double_cycling = False):
+        """ 
+        Sets the constants for segmentation and post-processing
         
-        :param w_len: Size of window used when mapping states
-        :type w_len: integer
-        :param freq: Sampling rate for the record to be processed
-        :type freq: real
-        :param hold_length: Threshold in seconds for the amount of time a breath can be in a no flow state before considered termintated
-        :type hold_length: real
-        :param leak_perc_thresh: The proportion of leak permitted before breath is conidered physiologically implausible and to be flagged for merging in post processing
-        :type leak_perc_thresh: real
-        :param exp_hold_len: The time in seconds of the expiratory hold that must occur between breaths to deflag for merging in post-processing
-        :type exp_hold_len: real
-        :param permit_double_cycling: Decide whether to merge double cycles in post-processing
-        :type permit_double_cycling: boolean
+        Parameters
+        ----------
+        freq : int, optional
+            Sampling rate of the input data. Defaults to 100
+        hold_length : real, optional
+            Threshold in seconds for the amount of time a breath can be in a no flow state before considered termintated. Defaults to 0.5s
+        leak_perc_thresh : real, optional
+            The proportion of leak permitted before breath is conidered physiologically implausible and to be flagged for merging in post processing. Defaults to 66%
+        exp_hold_len : real, optional
+            The time in seconds of the expiratory hold that must occur between breaths to deflag for merging in post-processing. Defaults to 0.05s
+        permit_double_cycling : boolean, optional
+            Decide whether to merge double cycles in post-processing based on exp_hold_len. Defaults to false.
+            
+        Returns
+        -------
+        None
         """
         self.breaths = []
-        self.w_len = w_len
         self.freq = freq
         self.max_hold = math.ceil(freq * hold_length)
         self.leak_perc_thresh = leak_perc_thresh
@@ -68,18 +64,25 @@ class PhaseLabeller:
         self.permit_double_cycling = permit_double_cycling
     
     def process(self, p_labels, f_labels, pressures, flows, post_processing=True):
-        """Given the pressure and flow data points and labels, segments the data into breaths, identifies respiratory sub-phases, and calculates some physiological values
+        """
+        Given the pressure and flow data points and labels, segments the data into breaths, identifies respiratory sub-phases, and calculates some physiological values
         
-        :param p_labels: The PressureStates labels generated from StateMapper
-        :type p_labels: Array like of PressureStates enum
-        :param f_labels: The FlowStates labels generated from StateMapper
-        :type f_labels: Array like of FlowStates enum
-        :param pressures: Pressure data points
-        :type pressures: Array like of real
-        :param flows: Flow data points
-        :type flows: Array like of real
-        :returns: None
-        :rtype: None
+        Parameters
+        ----------
+        p_labels : array like of PressureStates enum
+            The PressureStates labels generated from StateMapper
+        f_labels : array like of FlowStates enum
+            The FlowStates labels generated from StateMapper
+        pressures : array like of real
+            Pressure data points
+        flows : array like of real
+            Flow data points
+        post_processing : boolean, optional
+            Flag for deciding whether to run post processing or not. Defaults to True
+            
+        Returns
+        -------
+        None
         """
         if type(pressures) is not np.array:
             pressures = np.array(pressures)
@@ -105,12 +108,18 @@ class PhaseLabeller:
             print("Warning: No breaths identified")
     
     def get_breaths(self, length_units="ms"):
-        """Returns the segmented breaths and calculated features as a pandas dataframe. See BreathVariables for list of variables returned
+        """
+        Returns the segmented breaths and calculated features as a pandas dataframe. See BreathVariables for list of variables returned
         
-        :param length_units: Unit to use for length calculations, accepts 'ms' and 's' for milliseconds and seconds respectively
-        :type length_units: string
-        :returns: Table of segmented breaths and charactersitics for each breath
-        :rtype: Pandas Dataframe
+        Parameters
+        ----------
+        length_units : string, optional
+            Unit to use for length calculations, accepts 'ms' and 's' for milliseconds and seconds respectively. Defaults to ms
+        
+        Returns
+        --------
+        Pandas Dataframe
+            Table of segmented breaths and charactersitics for each breath with lengths scaled according to given unit
         """
         df = pd.DataFrame([vars(x) for x in self.breaths])
         if length_units == "ms":
@@ -128,24 +137,33 @@ class PhaseLabeller:
                   "max_expiratory_flow", "max_pressure", "min_pressure", "pressure_flow_correlation"]]
         
     def get_breaths_raw(self):
-        """Returns the raw breath calculations without modifying for time interval
+        """
+        Returns the segmented breaths and calculated features as a pandas dataframe. See BreathVariables for list of variables returned
         
-        :returns: Dataframe containing breaths and calculated variables
-        :rtype: Pandas Dataframe
+        Returns
+        --------
+        Pandas Dataframe
+            Table of segmented breaths and charactersitics for each breath
         """
         return pd.DataFrame([vars(x) for x in self.breaths])
     
     def get_breath_annotations(self, N, p_states=list(ps), f_states=list(fs)):
-        """ Returns a Nx3 dataframe containing key points of breaths mapped to indices to be used with GUI annotator for viewing
-            
-        :param N: Length of the sample that was analyzed (in terms of data points)
-        :type N: Integer
-        :param p_states: The pressure states from each breath that you would like mapped
-        :type p_states: array like of PressureStates
-        :param f_states: The flow states from each breath that you woudld like mapped
-        :type f_states: array like of FlowStates
-        :returns: Dataframe containing keypoints at each index of the data on which the analysis was performed
-        :rtype: Pandas Dataframe
+        """ 
+        Returns a Nx3 dataframe containing key points of breaths mapped to indices to be used with GUI annotator for viewing
+        
+        Parameters
+        ----------
+        N : int
+            Length of the sample that was analyzed (in terms of data points)
+        p_states : array like of PressureStates, optional
+            The pressure states from each breath that you would like mapped. Defaults to all enums in PressureStates.
+        f_states : array like of FlowStates, optional
+            The flow states from each breath that you woudld like mapped. Defaults to all enums in FlowStates
+        
+        Returns
+        -------
+        Pandas Dataframe
+            Dataframe containing keypoints at each index of the data on which the analysis was performed
         """
         output = np.full((N,3), -1)
         output[:,0] = np.arange(N)
@@ -181,16 +199,20 @@ class PhaseLabeller:
         return output
     
     def __get_next_breath(self, labels, start):
-        """Identifies the next breath in the record based on Inspiration-Inspiration interval
+        """
+        Identifies the next breath in the record based on Inspiration-Inspiration interval
         
-        :param labels: The array of flow labels calculated from a StateMapper object
-        :type labels: Array like of FlowStates enum
-        :param start: Index from which to start searching for a breath
-        :type start: integer
-        :param max_hold: Maximum number of datapoints that no_flow is encountered before the breath is deemed to be an outlier so we cut it off at the next inspiration event.
-        :type max_hold: integer
-        :returns: A breath object containing the start and end points
-        :rtype: BreathVariables object
+        Parameters
+        ----------
+        labels : array like of FlowStates enum
+            The array of flow labels calculated from a StateMapper object
+        start : integer
+            Index from which to start searching for a breath
+        
+        Returns
+        -------
+        BreathVariables object
+            A breath object containing the start and end points
         """
         running_hold = 0
         expiration_encountered = False
@@ -216,35 +238,22 @@ class PhaseLabeller:
         breath.breath_start = start
         breath.breath_end = len(labels)
         return breath
-
-    def __sum_information(self, groups, target_classes):
-        """Calculates the total information across multiple groups based on a target classes vs everything else
-        
-        :param groups: A list of arrays containing classes
-        :type groups: Array like of Array like
-        :param target_classes: An array of classes to consider as a single category when calculating information
-        :type target_classes: Array like
-        """
-        totallen = np.sum([len(x) for x in groups])
-        inf = 0
-        for x in groups:
-            xlen = len(x)
-            class_sum = 0
-            for target_class in target_classes:
-                class_sum += np.sum(x == target_class)
-            p = class_sum / xlen
-            inf += -p * np.log(p + 1E-7) * xlen / totallen
-            p = (xlen - class_sum) / xlen
-            inf += -p * np.log(p + 1E-7) * xlen / totallen
-        return inf
     
     def __maximise_information_gain(self, labels, target_classes):
-        """Finds the split on the given labels which maximises information gain
+        """
+        Finds the split on the given labels which maximises information gain
         
-        :param labels: An array of labels (enumerated flow/pressure states)
-        :type labels: Array like
-        :param target_classes: An array of labels (enumerated flow/pressure states) to use to calculate information
-        :type target_classes: Array like
+        Parameters
+        ----------
+        labels : array like of PressureStates or FlowStates
+            An array of labels (enumerated flow/pressure states)
+        target_classes : array like of PressureStates or FlowStates
+            An array of labels (enumerated flow/pressure states) to use to calculate information gain
+        
+        Returns
+        -------
+        (int, array like of PressureStates or FlowStates, array like of PressureStates or FlowStates)
+            Returns the index of the split, the states up to index, states from index to the end
         """
         some_exists = False
         for target_class in target_classes:
@@ -278,16 +287,21 @@ class PhaseLabeller:
         return (idx, labels[:idx], labels[idx:])
        
     def __information_approach(self, p_labels, f_labels, breath):
-        """Tries to identify sub-phases of each breath based on maximising information gain on splitting
+        """
+        Tries to identify sub-phases of each breath based on maximising information gain on splitting
         
-        :param p_labels: Pressure labels for the record calculated using StateMapper
-        :type p_labels: Array like of PressureStates enum
-        :param f_labels: Flow labels for the record calculated using StateMapper
-        :type f_labels: Array like of FlowStates enum
-        :param breath: BreathVariables object for the breath to calculate sub phases
-        :type breath: BreathVariables object
-        :returns: None
-        :rtype: None
+        Parameters
+        ----------
+        p_labels : array like of PressureStates enum
+            Pressure labels for the record calculated using StateMapper
+        f_labels : array like of FlowStates enum
+            Flow labels for the record calculated using StateMapper
+        breath : BreathVariables object
+            BreathVariables object for the breath to calculate sub phases
+        
+        Returns
+        -------
+        None
         """
         p_labels = p_labels[breath.breath_start:breath.breath_end]
         f_labels = f_labels[breath.breath_start:breath.breath_end]
@@ -325,25 +339,35 @@ class PhaseLabeller:
         # Find pip start by finding end of split
         breath.pip_start, _, labels = self.__maximise_information_gain(labels, [ps.pressure_rise])
         breath.pip_start += breath.breath_start
+        
         # Find pressure drop start by finding end of split
         breath.pressure_drop_start, _, labels = self.__maximise_information_gain(labels, [ps.pip])
         breath.pressure_drop_start += breath.pip_start
+        
         # Find peep start by finding start of split
         breath.peep_start, _, labels = self.__maximise_information_gain(labels, [ps.pressure_drop])
         breath.peep_start += breath.pressure_drop_start
+        
         # Find pressure rise start by finding start of split
         breath.pressure_rise_start, _, labels = self.__maximise_information_gain(p_labels[:breath.pip_start - breath.breath_start], [ps.peep])
         breath.pressure_rise_start += breath.breath_start
     
     def __calculate_features(self, breath, pressures, flows):
-        """Calculates the values relevant for physiology like tidal volumes and respiratory phase lengths
+        """
+        Calculates the values relevant for physiology like tidal volumes and respiratory phase lengths
         
-        :param breath: The breath for which to calculate the physiological values
-        :type breath: BreathVariables
-        :param pressures: Pressure data points for the record
-        :type pressures: Array like of real
-        :param flows: Flow data points for the record
-        :type flows: Array like of real
+        Parameters
+        ----------
+        breath : BreathVariables object
+            The breath for which to calculate the physiological values
+        pressures : array like of real
+            Pressure data points
+        flows : array like of real
+            Flow data points
+        
+        Returns
+        -------
+        None
         """
         p = np.array(pressures[breath.breath_start:breath.breath_end])
         f = np.array(flows[breath.breath_start:breath.breath_end])
@@ -384,18 +408,23 @@ class PhaseLabeller:
         breath.pressure_flow_correlation = np.corrcoef(p,f)[0,1]
     
     def __post_process(self, p_labels, f_labels, pressures, flows):
-        """ Performs merging of adjacent breaths dependent on whether inspiration and expiration volumes match
+        """ 
+        Performs merging of adjacent breaths dependent on whether inspiration and expiration volumes match
         
-        :param p_labels: Pressure labels for record
-        :type p_labels: Array like of PressureStates enum
-        :param f_labels: Flow labels for record
-        :type f_labels: Array like of FlowStates enum
-        :param pressures: Pressure data points
-        :type pressures: Array like of real
-        :param flows: Flow data points
-        :type flows: Array like of real
-        :returns: None
-        :rtype: None
+        Parameters
+        ----------
+        p_labels : array like of PressureStates enum
+            Pressure labels for the record calculated using StateMapper
+        f_labels : array like of FlowStates enum
+            Flow labels for the record calculated using StateMapper
+        pressures : array like of real
+            Pressure data points
+        flows : array like of real
+            Flow data points
+       
+        Returns
+        -------
+        None
         """
         merged_breaths = [self.breaths[0]]
         begin_merge = False

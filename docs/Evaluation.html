@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>ventiliser.Evaluation API documentation</title>
+<meta name="description" content="Created on Wed Apr 22 15:48:30 2020 …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>ventiliser.Evaluation</code></h1>
+</header>
+<section id="section-intro">
+<p>Created on Wed Apr 22 15:48:30 2020</p>
+<p>@author: David Chong Tian Wei</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+&#34;&#34;&#34;
+Created on Wed Apr 22 15:48:30 2020
+
+@author: David Chong Tian Wei
+&#34;&#34;&#34;
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import random
+from ventiliser.BreathVariables import BreathVariables
+
+class Evaluation:
+    &#34;&#34;&#34;
+    Class to help visualise and evaluate breaths extracted from a record.
+    
+    Attributes
+    ----------
+    pressures : Array like of real
+        Pressure data points for a record
+    flows : Array like of real
+        Flow data points for a record
+    breaths : Array like of BreathVariables
+        Breaths as calculating using mapper and phaselabeller
+    freq : real
+        Frequency in Hz of the recording sampling rate
+        
+    &#34;&#34;&#34;
+    @staticmethod
+    def load_breaths_from_csv(path):
+        &#34;&#34;&#34;
+        Utility method to load a csv file output from PhaseLabeller.get_breaths_raw to a list of BreathVariables
+        
+        Parameters
+        ----------
+        path : string
+            Path to the raw breaths file
+        
+        Returns
+        -------
+        array like of BreathVariables objects
+        &#34;&#34;&#34;
+        csv = pd.read_csv(path)
+        breaths = csv.apply(Evaluation.__breathvariables_from_row, axis=1)
+        return breaths
+    @staticmethod
+    def __breathvariables_from_row(x):
+        &#34;&#34;&#34;
+        Helper method to apply on pandas dataframe
+        
+        Parameters
+        ----------
+        x : Pandas Series
+            A row from a pandas dataframe containing breaths
+        
+        Returns
+        -------
+        BreathVariables object
+        &#34;&#34;&#34;
+        output = BreathVariables()
+        for attr in x.index:
+            setattr(output, attr, int(x[attr]))
+        return output
+    
+    def __init__(self, pressures, flows, breaths, freq):
+        &#34;&#34;&#34;
+        Initialises the evaluation object with the data, predicted breaths, and frequency of the record
+        
+        Parameters
+        ----------
+        pressures : Array like of real
+            Pressure data points for a record
+        flows : Array like of real
+            Flow data points for a record
+        breaths : Array like of BreathVariables
+            Breaths as calculating using mapper and phaselabeller
+        freq : real
+            Frequency in Hz of the recording sampling rate
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        
+        self.pressures = np.array(pressures)
+        self.flows = np.array(flows)
+        self.breaths = breaths
+        self.freq = freq
+    
+    def compare(self, labels, breath_attr):
+        &#34;&#34;&#34;
+        Compares an attribute from the currently loaded breaths with a list of values. Identifies the label which is the closest match to each breath.
+        
+        Parameters
+        ----------
+        labels : array like of int
+            A list of indices that you wish to compare with the currently loaded breaths
+        breath_attr : string
+            A BreathVariables attribute you wish to perform the comparison on
+        
+        Returns
+        -------
+        Pandas Dataframe
+            A dataframe containing the closest matching breath to the given labels based on the attribute along with the difference
+        &#34;&#34;&#34;
+        if self.breaths is None:
+            print(&#34;No breaths to compare to&#34;)
+            return
+        labels = np.array(labels)
+        output = []
+        for breath in self.breaths:
+            delta = abs(labels - getattr(breath, breath_attr))
+            best = np.argmin(np.array(delta))
+            output += [{&#34;breath_index&#34; : self.breaths.index(breath), &#34;label_index&#34; : best, &#34;delta&#34; : delta[best]}]
+        return pd.DataFrame(output)
+    
+    def get_comparison_stats(self, labels, breath_attr):
+        &#34;&#34;&#34;
+        Compares labels against an attribute of the loaded breaths. If multiple breaths map to the same label, the one with the smallest delta is kept and the remaining considered false positives.
+        
+        Parameters
+        ----------
+        labels : array like of int
+            A list of indices that you wish to compare with the currently loaded breaths
+        breath_attr : string
+            A BreathVariables attribute you wish to perform the comparison on
+        
+        Returns
+        -------
+        dict
+            A dictionary containing total number of breaths, number of matched breaths, total number of labels, number of matched labels, mean delta of all matches, std delta of all matches
+        &#34;&#34;&#34;
+        comparison = self.compare(labels, breath_attr)
+        mapped_labels = comparison[&#34;label_index&#34;].unique()
+        matches = []
+        for label in mapped_labels:
+            mapped_breaths = comparison.loc[comparison[&#34;label_index&#34;] == label].sort_values(by=[&#34;delta&#34;], ascending=True)
+            matches += [mapped_breaths[&#34;delta&#34;].iat[0]]
+        return {&#34;n_predicted&#34; : len(self.breaths),
+                  &#34;n_predicted_matched&#34; : len(matches),
+                  &#34;n_labels&#34; : len(labels),
+                  &#34;n_labels_matched&#34; : len(mapped_labels),
+                  &#34;delta_mean&#34; : np.mean(matches),
+                  &#34;delta_std&#34; : np.std(matches)}
+        
+    def plot_breath(self, index, attrs=[], p_y=&#34;Pressure&#34;, f_y=&#34;Flow&#34;, v_y=&#34;Volume&#34;, show=True):
+        &#34;&#34;&#34;
+        Plots the pressure, volume and flow of a breath and allows labelling of key points
+        
+        Parameters
+        ----------
+        index : int
+            Index of the breath you wish to plot
+        attrs : array like of string, optional
+            List of attributes you wish to annotate onto the breath (See BreathVariables for available attributes). Defaults to empty list
+        p_y : string, optional
+            Label for pressure plot y axis. Defaults to &#39;Pressure&#39;.
+        f_y : string, optional
+            Label for flow plot y axis. Defaults to &#39;Flow&#39;
+        v_y : string, optional
+            Label for volume plot y axis. Defaults to &#39;Volume&#39;
+        show : boolean, optional
+            Flag to decide whether to show the plot or leave it so the user can add more to it. Defaults to True
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        if self.breaths is None:
+            print(&#34;No breaths loaded&#34;)
+        if index &gt;= len(self.breaths):
+            print(&#34;Index is larger than the number of breaths available&#34;)
+        
+        volume = [0]
+        for f in self.flows[self.breaths[index].breath_start:self.breaths[index].breath_end]:
+            volume.append(volume[-1] + f)
+        
+        x_values = np.array(range(0,self.breaths[index].breath_end - self.breaths[index].breath_start)) / self.freq
+        plt.figure(figsize=(10,6))
+        # Plot pressures
+        plt.subplot(3,1,1)
+        plt.title(&#34;Breath &#34; + str(index))
+        plt.plot(x_values,self.pressures[self.breaths[index].breath_start:self.breaths[index].breath_end], color=&#34;r&#34;)
+        plt.ylim(bottom=0)
+        plt.ylabel(p_y)
+        for attr in attrs:
+            xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+            plt.axvline(x=xpos, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+            plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
+        # Plot flows
+        plt.subplot(3,1,2)
+        plt.plot(x_values, self.flows[self.breaths[index].breath_start:self.breaths[index].breath_end], color=&#34;g&#34;)
+        plt.axhline(y=0, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+        plt.ylabel(f_y)
+        for attr in attrs:
+            xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+            plt.axvline(x=xpos, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+            plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
+        # Plot volume
+        plt.subplot(3,1,3)
+        plt.plot(x_values, volume[1:], color=&#34;b&#34;)
+        plt.xlabel(&#34;Time [s]&#34;)
+        plt.ylabel(v_y)
+        for attr in attrs:
+            xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+            plt.axvline(x=xpos, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+            plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
+        
+        plt.tight_layout()
+        if show:
+            plt.show()
+    
+    def plot_pv_loop(self, index, p_label=&#34;Pressure&#34;, v_label=&#34;Volume&#34;, show=True):
+        &#34;&#34;&#34;
+        Plots the pressure-volume loop of the breath at index
+        
+        Parameters
+        ----------
+        index : int
+            The index of the breath you wish to plot
+        p_label : string, optional
+            The label for the pressure axis. Defaults to &#39;Pressure&#39;
+        v_label : string, optional
+            The label for the volume axis. Defaults to &#39;Volume&#39;
+        show : boolean, optional
+            Flag for deciding whether to show the plot or leave it so the user can add more to it. Defaults to True
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        if self.breaths is None:
+            print(&#34;No breaths loaded&#34;)
+        if index &gt;= len(self.breaths):
+            print(&#34;Index is larger than the number of breaths available&#34;)
+        volume = [0]
+        for f in self.flows[self.breaths[index].breath_start:self.breaths[index].breath_end]:
+            volume.append(volume[-1] + f)
+        plt.plot(self.pressures[self.breaths[index].breath_start:self.breaths[index].breath_end], volume[1:])
+        plt.xlabel(p_label)
+        plt.ylabel(v_label)
+        plt.title(&#34;Breath &#34; + str(index))
+        if show:
+            plt.show()
+            
+    def plot_breaths_flow_phases(self, 
+                                 attrs=[&#34;inspiration_initiation_length&#34;, &#34;peak_inspiratory_flow_length&#34;, &#34;inspiration_termination_length&#34;,
+                                        &#34;inspiratory_hold_length&#34;, &#34;expiration_initiation_length&#34;, &#34;peak_expiratory_flow_length&#34;,
+                                        &#34;expiration_termination_length&#34;,&#34;expiratory_hold_length&#34;]):
+        &#34;&#34;&#34;
+        Plots a stacked barplot of each breath where the stack is the length of each phase of the breath
+        
+        Parameters
+        ----------
+        attrs : array like of string, optional
+            List of breath phases you wish to plot out. Defaults to all breath phases (see BreathVariables for more information)
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        df = pd.DataFrame([vars(x) for x in self.breaths])
+        order = np.argsort(np.array(df[&#34;breath_end&#34;] - df[&#34;breath_start&#34;]))
+        df = df.iloc[order,:]
+        bottom = np.array([0] * df.shape[0])
+        ind = np.arange(df.shape[0])
+        for attr in attrs:
+            plt.bar(ind, df[attr], 1, bottom = bottom, label=attr)
+            bottom += df[attr].values
+        plt.legend()
+        plt.xlabel(&#34;Breaths&#34;)
+        plt.ylabel(&#34;Length&#34;)
+        plt.show()
+        </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="ventiliser.Evaluation.Evaluation"><code class="flex name class">
+<span>class <span class="ident">Evaluation</span></span>
+<span>(</span><span>pressures, flows, breaths, freq)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class to help visualise and evaluate breaths extracted from a record.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>pressures</code></strong> :&ensp;<code>Array like</code> of <code>real</code></dt>
+<dd>Pressure data points for a record</dd>
+<dt><strong><code>flows</code></strong> :&ensp;<code>Array like</code> of <code>real</code></dt>
+<dd>Flow data points for a record</dd>
+<dt><strong><code>breaths</code></strong> :&ensp;<code>Array like</code> of <code>BreathVariables</code></dt>
+<dd>Breaths as calculating using mapper and phaselabeller</dd>
+<dt><strong><code>freq</code></strong> :&ensp;<code>real</code></dt>
+<dd>Frequency in Hz of the recording sampling rate</dd>
+</dl>
+<p>Initialises the evaluation object with the data, predicted breaths, and frequency of the record</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>pressures</code></strong> :&ensp;<code>Array like</code> of <code>real</code></dt>
+<dd>Pressure data points for a record</dd>
+<dt><strong><code>flows</code></strong> :&ensp;<code>Array like</code> of <code>real</code></dt>
+<dd>Flow data points for a record</dd>
+<dt><strong><code>breaths</code></strong> :&ensp;<code>Array like</code> of <code>BreathVariables</code></dt>
+<dd>Breaths as calculating using mapper and phaselabeller</dd>
+<dt><strong><code>freq</code></strong> :&ensp;<code>real</code></dt>
+<dd>Frequency in Hz of the recording sampling rate</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Evaluation:
+    &#34;&#34;&#34;
+    Class to help visualise and evaluate breaths extracted from a record.
+    
+    Attributes
+    ----------
+    pressures : Array like of real
+        Pressure data points for a record
+    flows : Array like of real
+        Flow data points for a record
+    breaths : Array like of BreathVariables
+        Breaths as calculating using mapper and phaselabeller
+    freq : real
+        Frequency in Hz of the recording sampling rate
+        
+    &#34;&#34;&#34;
+    @staticmethod
+    def load_breaths_from_csv(path):
+        &#34;&#34;&#34;
+        Utility method to load a csv file output from PhaseLabeller.get_breaths_raw to a list of BreathVariables
+        
+        Parameters
+        ----------
+        path : string
+            Path to the raw breaths file
+        
+        Returns
+        -------
+        array like of BreathVariables objects
+        &#34;&#34;&#34;
+        csv = pd.read_csv(path)
+        breaths = csv.apply(Evaluation.__breathvariables_from_row, axis=1)
+        return breaths
+    @staticmethod
+    def __breathvariables_from_row(x):
+        &#34;&#34;&#34;
+        Helper method to apply on pandas dataframe
+        
+        Parameters
+        ----------
+        x : Pandas Series
+            A row from a pandas dataframe containing breaths
+        
+        Returns
+        -------
+        BreathVariables object
+        &#34;&#34;&#34;
+        output = BreathVariables()
+        for attr in x.index:
+            setattr(output, attr, int(x[attr]))
+        return output
+    
+    def __init__(self, pressures, flows, breaths, freq):
+        &#34;&#34;&#34;
+        Initialises the evaluation object with the data, predicted breaths, and frequency of the record
+        
+        Parameters
+        ----------
+        pressures : Array like of real
+            Pressure data points for a record
+        flows : Array like of real
+            Flow data points for a record
+        breaths : Array like of BreathVariables
+            Breaths as calculating using mapper and phaselabeller
+        freq : real
+            Frequency in Hz of the recording sampling rate
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        
+        self.pressures = np.array(pressures)
+        self.flows = np.array(flows)
+        self.breaths = breaths
+        self.freq = freq
+    
+    def compare(self, labels, breath_attr):
+        &#34;&#34;&#34;
+        Compares an attribute from the currently loaded breaths with a list of values. Identifies the label which is the closest match to each breath.
+        
+        Parameters
+        ----------
+        labels : array like of int
+            A list of indices that you wish to compare with the currently loaded breaths
+        breath_attr : string
+            A BreathVariables attribute you wish to perform the comparison on
+        
+        Returns
+        -------
+        Pandas Dataframe
+            A dataframe containing the closest matching breath to the given labels based on the attribute along with the difference
+        &#34;&#34;&#34;
+        if self.breaths is None:
+            print(&#34;No breaths to compare to&#34;)
+            return
+        labels = np.array(labels)
+        output = []
+        for breath in self.breaths:
+            delta = abs(labels - getattr(breath, breath_attr))
+            best = np.argmin(np.array(delta))
+            output += [{&#34;breath_index&#34; : self.breaths.index(breath), &#34;label_index&#34; : best, &#34;delta&#34; : delta[best]}]
+        return pd.DataFrame(output)
+    
+    def get_comparison_stats(self, labels, breath_attr):
+        &#34;&#34;&#34;
+        Compares labels against an attribute of the loaded breaths. If multiple breaths map to the same label, the one with the smallest delta is kept and the remaining considered false positives.
+        
+        Parameters
+        ----------
+        labels : array like of int
+            A list of indices that you wish to compare with the currently loaded breaths
+        breath_attr : string
+            A BreathVariables attribute you wish to perform the comparison on
+        
+        Returns
+        -------
+        dict
+            A dictionary containing total number of breaths, number of matched breaths, total number of labels, number of matched labels, mean delta of all matches, std delta of all matches
+        &#34;&#34;&#34;
+        comparison = self.compare(labels, breath_attr)
+        mapped_labels = comparison[&#34;label_index&#34;].unique()
+        matches = []
+        for label in mapped_labels:
+            mapped_breaths = comparison.loc[comparison[&#34;label_index&#34;] == label].sort_values(by=[&#34;delta&#34;], ascending=True)
+            matches += [mapped_breaths[&#34;delta&#34;].iat[0]]
+        return {&#34;n_predicted&#34; : len(self.breaths),
+                  &#34;n_predicted_matched&#34; : len(matches),
+                  &#34;n_labels&#34; : len(labels),
+                  &#34;n_labels_matched&#34; : len(mapped_labels),
+                  &#34;delta_mean&#34; : np.mean(matches),
+                  &#34;delta_std&#34; : np.std(matches)}
+        
+    def plot_breath(self, index, attrs=[], p_y=&#34;Pressure&#34;, f_y=&#34;Flow&#34;, v_y=&#34;Volume&#34;, show=True):
+        &#34;&#34;&#34;
+        Plots the pressure, volume and flow of a breath and allows labelling of key points
+        
+        Parameters
+        ----------
+        index : int
+            Index of the breath you wish to plot
+        attrs : array like of string, optional
+            List of attributes you wish to annotate onto the breath (See BreathVariables for available attributes). Defaults to empty list
+        p_y : string, optional
+            Label for pressure plot y axis. Defaults to &#39;Pressure&#39;.
+        f_y : string, optional
+            Label for flow plot y axis. Defaults to &#39;Flow&#39;
+        v_y : string, optional
+            Label for volume plot y axis. Defaults to &#39;Volume&#39;
+        show : boolean, optional
+            Flag to decide whether to show the plot or leave it so the user can add more to it. Defaults to True
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        if self.breaths is None:
+            print(&#34;No breaths loaded&#34;)
+        if index &gt;= len(self.breaths):
+            print(&#34;Index is larger than the number of breaths available&#34;)
+        
+        volume = [0]
+        for f in self.flows[self.breaths[index].breath_start:self.breaths[index].breath_end]:
+            volume.append(volume[-1] + f)
+        
+        x_values = np.array(range(0,self.breaths[index].breath_end - self.breaths[index].breath_start)) / self.freq
+        plt.figure(figsize=(10,6))
+        # Plot pressures
+        plt.subplot(3,1,1)
+        plt.title(&#34;Breath &#34; + str(index))
+        plt.plot(x_values,self.pressures[self.breaths[index].breath_start:self.breaths[index].breath_end], color=&#34;r&#34;)
+        plt.ylim(bottom=0)
+        plt.ylabel(p_y)
+        for attr in attrs:
+            xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+            plt.axvline(x=xpos, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+            plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
+        # Plot flows
+        plt.subplot(3,1,2)
+        plt.plot(x_values, self.flows[self.breaths[index].breath_start:self.breaths[index].breath_end], color=&#34;g&#34;)
+        plt.axhline(y=0, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+        plt.ylabel(f_y)
+        for attr in attrs:
+            xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+            plt.axvline(x=xpos, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+            plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
+        # Plot volume
+        plt.subplot(3,1,3)
+        plt.plot(x_values, volume[1:], color=&#34;b&#34;)
+        plt.xlabel(&#34;Time [s]&#34;)
+        plt.ylabel(v_y)
+        for attr in attrs:
+            xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+            plt.axvline(x=xpos, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+            plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
+        
+        plt.tight_layout()
+        if show:
+            plt.show()
+    
+    def plot_pv_loop(self, index, p_label=&#34;Pressure&#34;, v_label=&#34;Volume&#34;, show=True):
+        &#34;&#34;&#34;
+        Plots the pressure-volume loop of the breath at index
+        
+        Parameters
+        ----------
+        index : int
+            The index of the breath you wish to plot
+        p_label : string, optional
+            The label for the pressure axis. Defaults to &#39;Pressure&#39;
+        v_label : string, optional
+            The label for the volume axis. Defaults to &#39;Volume&#39;
+        show : boolean, optional
+            Flag for deciding whether to show the plot or leave it so the user can add more to it. Defaults to True
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        if self.breaths is None:
+            print(&#34;No breaths loaded&#34;)
+        if index &gt;= len(self.breaths):
+            print(&#34;Index is larger than the number of breaths available&#34;)
+        volume = [0]
+        for f in self.flows[self.breaths[index].breath_start:self.breaths[index].breath_end]:
+            volume.append(volume[-1] + f)
+        plt.plot(self.pressures[self.breaths[index].breath_start:self.breaths[index].breath_end], volume[1:])
+        plt.xlabel(p_label)
+        plt.ylabel(v_label)
+        plt.title(&#34;Breath &#34; + str(index))
+        if show:
+            plt.show()
+            
+    def plot_breaths_flow_phases(self, 
+                                 attrs=[&#34;inspiration_initiation_length&#34;, &#34;peak_inspiratory_flow_length&#34;, &#34;inspiration_termination_length&#34;,
+                                        &#34;inspiratory_hold_length&#34;, &#34;expiration_initiation_length&#34;, &#34;peak_expiratory_flow_length&#34;,
+                                        &#34;expiration_termination_length&#34;,&#34;expiratory_hold_length&#34;]):
+        &#34;&#34;&#34;
+        Plots a stacked barplot of each breath where the stack is the length of each phase of the breath
+        
+        Parameters
+        ----------
+        attrs : array like of string, optional
+            List of breath phases you wish to plot out. Defaults to all breath phases (see BreathVariables for more information)
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        df = pd.DataFrame([vars(x) for x in self.breaths])
+        order = np.argsort(np.array(df[&#34;breath_end&#34;] - df[&#34;breath_start&#34;]))
+        df = df.iloc[order,:]
+        bottom = np.array([0] * df.shape[0])
+        ind = np.arange(df.shape[0])
+        for attr in attrs:
+            plt.bar(ind, df[attr], 1, bottom = bottom, label=attr)
+            bottom += df[attr].values
+        plt.legend()
+        plt.xlabel(&#34;Breaths&#34;)
+        plt.ylabel(&#34;Length&#34;)
+        plt.show()</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="ventiliser.Evaluation.Evaluation.load_breaths_from_csv"><code class="name flex">
+<span>def <span class="ident">load_breaths_from_csv</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Utility method to load a csv file output from PhaseLabeller.get_breaths_raw to a list of BreathVariables</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>path</code></strong> :&ensp;<code>string</code></dt>
+<dd>Path to the raw breaths file</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>array like</code> of <code>BreathVariables objects</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def load_breaths_from_csv(path):
+    &#34;&#34;&#34;
+    Utility method to load a csv file output from PhaseLabeller.get_breaths_raw to a list of BreathVariables
+    
+    Parameters
+    ----------
+    path : string
+        Path to the raw breaths file
+    
+    Returns
+    -------
+    array like of BreathVariables objects
+    &#34;&#34;&#34;
+    csv = pd.read_csv(path)
+    breaths = csv.apply(Evaluation.__breathvariables_from_row, axis=1)
+    return breaths</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="ventiliser.Evaluation.Evaluation.compare"><code class="name flex">
+<span>def <span class="ident">compare</span></span>(<span>self, labels, breath_attr)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compares an attribute from the currently loaded breaths with a list of values. Identifies the label which is the closest match to each breath.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>labels</code></strong> :&ensp;<code>array like</code> of <code>int</code></dt>
+<dd>A list of indices that you wish to compare with the currently loaded breaths</dd>
+<dt><strong><code>breath_attr</code></strong> :&ensp;<code>string</code></dt>
+<dd>A BreathVariables attribute you wish to perform the comparison on</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Pandas Dataframe</code></dt>
+<dd>A dataframe containing the closest matching breath to the given labels based on the attribute along with the difference</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compare(self, labels, breath_attr):
+    &#34;&#34;&#34;
+    Compares an attribute from the currently loaded breaths with a list of values. Identifies the label which is the closest match to each breath.
+    
+    Parameters
+    ----------
+    labels : array like of int
+        A list of indices that you wish to compare with the currently loaded breaths
+    breath_attr : string
+        A BreathVariables attribute you wish to perform the comparison on
+    
+    Returns
+    -------
+    Pandas Dataframe
+        A dataframe containing the closest matching breath to the given labels based on the attribute along with the difference
+    &#34;&#34;&#34;
+    if self.breaths is None:
+        print(&#34;No breaths to compare to&#34;)
+        return
+    labels = np.array(labels)
+    output = []
+    for breath in self.breaths:
+        delta = abs(labels - getattr(breath, breath_attr))
+        best = np.argmin(np.array(delta))
+        output += [{&#34;breath_index&#34; : self.breaths.index(breath), &#34;label_index&#34; : best, &#34;delta&#34; : delta[best]}]
+    return pd.DataFrame(output)</code></pre>
+</details>
+</dd>
+<dt id="ventiliser.Evaluation.Evaluation.get_comparison_stats"><code class="name flex">
+<span>def <span class="ident">get_comparison_stats</span></span>(<span>self, labels, breath_attr)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compares labels against an attribute of the loaded breaths. If multiple breaths map to the same label, the one with the smallest delta is kept and the remaining considered false positives.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>labels</code></strong> :&ensp;<code>array like</code> of <code>int</code></dt>
+<dd>A list of indices that you wish to compare with the currently loaded breaths</dd>
+<dt><strong><code>breath_attr</code></strong> :&ensp;<code>string</code></dt>
+<dd>A BreathVariables attribute you wish to perform the comparison on</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>A dictionary containing total number of breaths, number of matched breaths, total number of labels, number of matched labels, mean delta of all matches, std delta of all matches</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_comparison_stats(self, labels, breath_attr):
+    &#34;&#34;&#34;
+    Compares labels against an attribute of the loaded breaths. If multiple breaths map to the same label, the one with the smallest delta is kept and the remaining considered false positives.
+    
+    Parameters
+    ----------
+    labels : array like of int
+        A list of indices that you wish to compare with the currently loaded breaths
+    breath_attr : string
+        A BreathVariables attribute you wish to perform the comparison on
+    
+    Returns
+    -------
+    dict
+        A dictionary containing total number of breaths, number of matched breaths, total number of labels, number of matched labels, mean delta of all matches, std delta of all matches
+    &#34;&#34;&#34;
+    comparison = self.compare(labels, breath_attr)
+    mapped_labels = comparison[&#34;label_index&#34;].unique()
+    matches = []
+    for label in mapped_labels:
+        mapped_breaths = comparison.loc[comparison[&#34;label_index&#34;] == label].sort_values(by=[&#34;delta&#34;], ascending=True)
+        matches += [mapped_breaths[&#34;delta&#34;].iat[0]]
+    return {&#34;n_predicted&#34; : len(self.breaths),
+              &#34;n_predicted_matched&#34; : len(matches),
+              &#34;n_labels&#34; : len(labels),
+              &#34;n_labels_matched&#34; : len(mapped_labels),
+              &#34;delta_mean&#34; : np.mean(matches),
+              &#34;delta_std&#34; : np.std(matches)}</code></pre>
+</details>
+</dd>
+<dt id="ventiliser.Evaluation.Evaluation.plot_breath"><code class="name flex">
+<span>def <span class="ident">plot_breath</span></span>(<span>self, index, attrs=[], p_y='Pressure', f_y='Flow', v_y='Volume', show=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plots the pressure, volume and flow of a breath and allows labelling of key points</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>index</code></strong> :&ensp;<code>int</code></dt>
+<dd>Index of the breath you wish to plot</dd>
+<dt><strong><code>attrs</code></strong> :&ensp;<code>array like</code> of <code>string</code>, optional</dt>
+<dd>List of attributes you wish to annotate onto the breath (See BreathVariables for available attributes). Defaults to empty list</dd>
+<dt><strong><code>p_y</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dd>Label for pressure plot y axis. Defaults to 'Pressure'.</dd>
+<dt><strong><code>f_y</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dd>Label for flow plot y axis. Defaults to 'Flow'</dd>
+<dt><strong><code>v_y</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dd>Label for volume plot y axis. Defaults to 'Volume'</dd>
+<dt><strong><code>show</code></strong> :&ensp;<code>boolean</code>, optional</dt>
+<dd>Flag to decide whether to show the plot or leave it so the user can add more to it. Defaults to True</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_breath(self, index, attrs=[], p_y=&#34;Pressure&#34;, f_y=&#34;Flow&#34;, v_y=&#34;Volume&#34;, show=True):
+    &#34;&#34;&#34;
+    Plots the pressure, volume and flow of a breath and allows labelling of key points
+    
+    Parameters
+    ----------
+    index : int
+        Index of the breath you wish to plot
+    attrs : array like of string, optional
+        List of attributes you wish to annotate onto the breath (See BreathVariables for available attributes). Defaults to empty list
+    p_y : string, optional
+        Label for pressure plot y axis. Defaults to &#39;Pressure&#39;.
+    f_y : string, optional
+        Label for flow plot y axis. Defaults to &#39;Flow&#39;
+    v_y : string, optional
+        Label for volume plot y axis. Defaults to &#39;Volume&#39;
+    show : boolean, optional
+        Flag to decide whether to show the plot or leave it so the user can add more to it. Defaults to True
+    
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    if self.breaths is None:
+        print(&#34;No breaths loaded&#34;)
+    if index &gt;= len(self.breaths):
+        print(&#34;Index is larger than the number of breaths available&#34;)
+    
+    volume = [0]
+    for f in self.flows[self.breaths[index].breath_start:self.breaths[index].breath_end]:
+        volume.append(volume[-1] + f)
+    
+    x_values = np.array(range(0,self.breaths[index].breath_end - self.breaths[index].breath_start)) / self.freq
+    plt.figure(figsize=(10,6))
+    # Plot pressures
+    plt.subplot(3,1,1)
+    plt.title(&#34;Breath &#34; + str(index))
+    plt.plot(x_values,self.pressures[self.breaths[index].breath_start:self.breaths[index].breath_end], color=&#34;r&#34;)
+    plt.ylim(bottom=0)
+    plt.ylabel(p_y)
+    for attr in attrs:
+        xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+        plt.axvline(x=xpos, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+        plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
+    # Plot flows
+    plt.subplot(3,1,2)
+    plt.plot(x_values, self.flows[self.breaths[index].breath_start:self.breaths[index].breath_end], color=&#34;g&#34;)
+    plt.axhline(y=0, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+    plt.ylabel(f_y)
+    for attr in attrs:
+        xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+        plt.axvline(x=xpos, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+        plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
+    # Plot volume
+    plt.subplot(3,1,3)
+    plt.plot(x_values, volume[1:], color=&#34;b&#34;)
+    plt.xlabel(&#34;Time [s]&#34;)
+    plt.ylabel(v_y)
+    for attr in attrs:
+        xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+        plt.axvline(x=xpos, color=&#34;k&#34;, linestyle=&#34;--&#34;)
+        plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
+    
+    plt.tight_layout()
+    if show:
+        plt.show()</code></pre>
+</details>
+</dd>
+<dt id="ventiliser.Evaluation.Evaluation.plot_breaths_flow_phases"><code class="name flex">
+<span>def <span class="ident">plot_breaths_flow_phases</span></span>(<span>self, attrs=['inspiration_initiation_length', 'peak_inspiratory_flow_length', 'inspiration_termination_length', 'inspiratory_hold_length', 'expiration_initiation_length', 'peak_expiratory_flow_length', 'expiration_termination_length', 'expiratory_hold_length'])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plots a stacked barplot of each breath where the stack is the length of each phase of the breath</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>attrs</code></strong> :&ensp;<code>array like</code> of <code>string</code>, optional</dt>
+<dd>List of breath phases you wish to plot out. Defaults to all breath phases (see BreathVariables for more information)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_breaths_flow_phases(self, 
+                             attrs=[&#34;inspiration_initiation_length&#34;, &#34;peak_inspiratory_flow_length&#34;, &#34;inspiration_termination_length&#34;,
+                                    &#34;inspiratory_hold_length&#34;, &#34;expiration_initiation_length&#34;, &#34;peak_expiratory_flow_length&#34;,
+                                    &#34;expiration_termination_length&#34;,&#34;expiratory_hold_length&#34;]):
+    &#34;&#34;&#34;
+    Plots a stacked barplot of each breath where the stack is the length of each phase of the breath
+    
+    Parameters
+    ----------
+    attrs : array like of string, optional
+        List of breath phases you wish to plot out. Defaults to all breath phases (see BreathVariables for more information)
+    
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    df = pd.DataFrame([vars(x) for x in self.breaths])
+    order = np.argsort(np.array(df[&#34;breath_end&#34;] - df[&#34;breath_start&#34;]))
+    df = df.iloc[order,:]
+    bottom = np.array([0] * df.shape[0])
+    ind = np.arange(df.shape[0])
+    for attr in attrs:
+        plt.bar(ind, df[attr], 1, bottom = bottom, label=attr)
+        bottom += df[attr].values
+    plt.legend()
+    plt.xlabel(&#34;Breaths&#34;)
+    plt.ylabel(&#34;Length&#34;)
+    plt.show()</code></pre>
+</details>
+</dd>
+<dt id="ventiliser.Evaluation.Evaluation.plot_pv_loop"><code class="name flex">
+<span>def <span class="ident">plot_pv_loop</span></span>(<span>self, index, p_label='Pressure', v_label='Volume', show=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plots the pressure-volume loop of the breath at index</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>index</code></strong> :&ensp;<code>int</code></dt>
+<dd>The index of the breath you wish to plot</dd>
+<dt><strong><code>p_label</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dd>The label for the pressure axis. Defaults to 'Pressure'</dd>
+<dt><strong><code>v_label</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dd>The label for the volume axis. Defaults to 'Volume'</dd>
+<dt><strong><code>show</code></strong> :&ensp;<code>boolean</code>, optional</dt>
+<dd>Flag for deciding whether to show the plot or leave it so the user can add more to it. Defaults to True</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_pv_loop(self, index, p_label=&#34;Pressure&#34;, v_label=&#34;Volume&#34;, show=True):
+    &#34;&#34;&#34;
+    Plots the pressure-volume loop of the breath at index
+    
+    Parameters
+    ----------
+    index : int
+        The index of the breath you wish to plot
+    p_label : string, optional
+        The label for the pressure axis. Defaults to &#39;Pressure&#39;
+    v_label : string, optional
+        The label for the volume axis. Defaults to &#39;Volume&#39;
+    show : boolean, optional
+        Flag for deciding whether to show the plot or leave it so the user can add more to it. Defaults to True
+    
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    if self.breaths is None:
+        print(&#34;No breaths loaded&#34;)
+    if index &gt;= len(self.breaths):
+        print(&#34;Index is larger than the number of breaths available&#34;)
+    volume = [0]
+    for f in self.flows[self.breaths[index].breath_start:self.breaths[index].breath_end]:
+        volume.append(volume[-1] + f)
+    plt.plot(self.pressures[self.breaths[index].breath_start:self.breaths[index].breath_end], volume[1:])
+    plt.xlabel(p_label)
+    plt.ylabel(v_label)
+    plt.title(&#34;Breath &#34; + str(index))
+    if show:
+        plt.show()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="ventiliser" href="index.html">ventiliser</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="ventiliser.Evaluation.Evaluation" href="#ventiliser.Evaluation.Evaluation">Evaluation</a></code></h4>
+<ul class="">
+<li><code><a title="ventiliser.Evaluation.Evaluation.compare" href="#ventiliser.Evaluation.Evaluation.compare">compare</a></code></li>
+<li><code><a title="ventiliser.Evaluation.Evaluation.get_comparison_stats" href="#ventiliser.Evaluation.Evaluation.get_comparison_stats">get_comparison_stats</a></code></li>
+<li><code><a title="ventiliser.Evaluation.Evaluation.load_breaths_from_csv" href="#ventiliser.Evaluation.Evaluation.load_breaths_from_csv">load_breaths_from_csv</a></code></li>
+<li><code><a title="ventiliser.Evaluation.Evaluation.plot_breath" href="#ventiliser.Evaluation.Evaluation.plot_breath">plot_breath</a></code></li>
+<li><code><a title="ventiliser.Evaluation.Evaluation.plot_breaths_flow_phases" href="#ventiliser.Evaluation.Evaluation.plot_breaths_flow_phases">plot_breaths_flow_phases</a></code></li>
+<li><code><a title="ventiliser.Evaluation.Evaluation.plot_pv_loop" href="#ventiliser.Evaluation.Evaluation.plot_pv_loop">plot_pv_loop</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
+</footer>
+</body>
+</html>

@@ -32,17 +32,6 @@ class StateMapper:
         Contains the calculated pressure state labels after process is called
     f_labels : Numpy array of FlowStates enum
         Contains the calculated flow state labels after process is called
-        
-    Methods
-    -------
-    configure(p_base=5.5, f_base=0, f_thresh=0.1, freq=100, t_len=0.03)
-        Configures attributes required for processing a record
-    process_pressures(pressures, p_0=PressureStates.peep, display_progress=False, con=None, reporter=None)
-        Calcultes the pressure state labels for the data given in pressures.
-    process_flows(flows, f_0=FlowStates.no_flow, display_progress=False, con=None, reporter=None)
-        Calculates the flow state labels for the data given in flows.
-    process(pressures, flows, p_0=PressureStates.peep, f_0=FlowStates.no_flow, display_progress=False, single_core=False)
-        Calculates the pressure and flow state labels for data given in pressures and flows.
     """
     
     def __init__(self):
@@ -51,20 +40,25 @@ class StateMapper:
         self.configure();
     
     def configure(self, p_base=5.5, f_base=0, f_thresh=0.1, freq=100, t_len=0.03):
-        """ Sets processing constants. To be called before process
+        """ 
+        Sets processing constants. To be called before process
         
-        :param p_base: Baseline pressure / PEEP set on the ventilator
-        :type p_base: real
-        :param f_base: Baseline flow which is usually 0
-        :type f_base: real
-        :param f_thresh: Threshold for the standard deviation of a window to be considered non-stationary
-        :type f_thresh: real
-        :param freq: Sampling rate of the record to be processed
-        :type freq: real
-        :param t_len: Length of time in seconds of the desired window to use
-        :type t_len: real
-        :returns: None
-        :rtype: None
+        Parameters
+        ----------
+        p_base : real, optional
+            Baseline pressure / PEEP set on the ventilator. Defaults to 5.5
+        f_base : real, optional
+            Baseline flow which is usually 0. Defaults to 0
+        f_thresh : real, optional
+            Threshold for the standard deviation of a window to be considered non-stationary. Defaults to 0.1
+        freq : int, optional
+            Sampling rate of the input to be processed. Defaults to 100
+        t_len : real, optional
+            Length of time in seconds of the desired window to use. Defaults to 0.03s
+        
+        Returns
+        -------
+        None
         """
         self.p_base = p_base
         self.f_base = f_base
@@ -75,28 +69,34 @@ class StateMapper:
             print("Warning: calculated window length is less than 3, average and standard deviation calculations may be unhelpful, consider increasing t_len")
     
     def get_labels(self):
-        """Returns the calculated labels
+        """
+        Returns the calculated labels
         
-        :returns: Dataframe containing the calculated pressure and flow states in value form
-        :rtype: Pandas dataframe of integer
+        Returns
+        -------
+        Pandas dataframe
+            Dataframe containing the calculated pressure and flow states as integers
         """
         return pd.DataFrame({"Pressure_States" : [x.value for x in self.p_labels], "Flow_States" : [x.value for x in self.f_labels]})
             
     def process_pressures(self, pressures, p_0=ps.peep, con=None, reporter=None):
-        """Maps data points from pressure to enumerated states
+        """
+        Maps data points from pressure to enumerated states
         
-        :param pressures: Pressure data points
-        :type pressures: Array like of real
-        :param p_0: Enumerated pressure state for padding
-        :type p_0: PressureStates enum
-        :param display_progress: Determines if progress should be shown
-        :type display_progress: boolean
-        :param con: Queue data structure for multiprocessing
-        :type con: Queue
-        :param reporter: For displaying progress bar in multiprocessing
-        :type reporter: reporter
-        :returns: None
-        :rtype: None
+        Parameters
+        ----------
+        pressures : array like of real
+            Pressure data points
+        p_0 : PressureStates enum, optional
+            The initial pressure state the program assumes it is in. Defaults to peep
+        con : Queue object, optional
+            The queue object to use for transferring data back to main cpu if multiprocessing is used. Defaults to None
+        reporter : reporter object, optional
+            The reporter object used to update the main cpu on the progress of the analysis. Defaults to None
+        
+        Returns
+        -------
+        None
         """
         if len(pressures) < self.w_len and con is None:
             con.put(np.array([]))
@@ -157,21 +157,24 @@ class StateMapper:
         else:
             self.p_labels = np.concatenate([self.p_labels, output])
             
-    def process_flows(self, flows, f_0=0, con=None, reporter=None):
-        """Maps data points from pressure to enumerated states
+    def process_flows(self, flows, f_0=fs.no_flow, con=None, reporter=None):
+        """
+        Maps data points from pressure to enumerated states
         
-        :param flows: Flow data points
-        :type flows: Array like of real
-        :param f_0: Enumerated flow state for padding
-        :type f_0: integer
-        :param display_progress: Determines if progress should be shown
-        :type display_progress: boolean
-        :param con: Queue data structure for multiprocessing
-        :type con: Queue
-        :param reporter: For displaying progress bar in multiprocessing
-        :type reporter: reporter
-        :returns: None
-        :rtype: None
+         Parameters
+        ----------
+        flows : array like of real
+            Flow data points
+        f_0 : FlowStates enum, optional
+            The initial flow state the program assumes it is in. Defaults to no flow.
+        con : Queue object, optional
+            The queue object to use for transferring data back to main cpu if multiprocessing is used. Defaults to None
+        reporter : reporter object, optional
+            The reporter object used to update the main cpu on the progress of the analysis. Defaults to None
+        
+        Returns
+        -------
+        None
         """
         if len(flows) < self.w_len and con is None:
             con.put(np.array([]))
@@ -186,7 +189,7 @@ class StateMapper:
             register_reporter(reporter)
         for i in atpbar(range(len(flow_means)-1), name="Labelling flow states"):
             if flow_stds[i] < self.f_thresh:
-                w_std_i = self.f_thresh
+                w_std_i = 0.5 * self.f_thresh
             else:
                 w_std_i = flow_stds[i]
             w_mean_delta = flow_mean_deltas[i]
@@ -222,35 +225,49 @@ class StateMapper:
             self.f_labels = np.concatenate([self.f_labels, output])
         
     def process(self, pressures, flows, p_0=ps.peep, f_0=fs.no_flow):
-        """Maps data points from pressure and flow to enumerated states
-        
-        :param pressures: Pressure data points
-        :type pressures: Array like of real
-        :param flows: Flow data points
-        :type flows: Array like of real
-        :param p_0: Enumerated pressure state for padding
-        :type p_0: PressureStates enum
-        :param f_0: Enumerated flow state for padding
-        :type f_0: FlowStates enum
-        :returns: 2-Tuple containing pressure and flow states
-        :rtype: (Array like PressureStates enum, Array like FlowStates enum)
         """
+        Maps data points from pressure and flow to enumerated states
+        
+        Parameters
+        ----------
+        pressures : array like of real
+            Pressure data points
+        flows : array like of real
+            Flow data points
+        p_0 : PressureStates enum, optional
+            The initial pressure state the program assumes it is in. Defaults to peep
+        f_0 : FlowStates enum, optional
+            The initial flow state the program assumes it is in. Defaults to no flow.
+        
+        Returns
+        -------
+        (array like of PressureStates enum, Array like of FlowStates enum)
+        """
+        buffer = len(pressures) % self.w_len
         if cpu_count() > 2:
             reporter = find_reporter()
             p_queue = Queue()
             f_queue = Queue()
-            p_process = Process(target = self.process_pressures, args=(pressures, p_0, p_queue, reporter))
-            f_process = Process(target = self.process_flows, args=(flows, f_0, f_queue, reporter))
+            if buffer != 0:
+                p_process = Process(target = self.process_pressures, args=(pressures[:-buffer], p_0, p_queue, reporter))
+                f_process = Process(target = self.process_flows, args=(flows[:-buffer], f_0, f_queue, reporter))
+            else:
+                p_process = Process(target = self.process_pressures, args=(pressures, p_0, p_queue, reporter))
+                f_process = Process(target = self.process_flows, args=(flows, f_0, f_queue, reporter))
             p_process.start()
             f_process.start()
             self.p_labels = np.concatenate((self.p_labels, p_queue.get()))
             self.f_labels = np.concatenate((self.f_labels, f_queue.get()))
             p_process.join()
             f_process.join()
+            self.p_labels = np.concatenate([self.p_labels, np.array([self.p_labels[-1]] * buffer)])
+            self.f_labels = np.concatenate([self.f_labels, np.array([self.f_labels[-1]] * buffer)])
         else:
-            self.process_pressures(pressures, p_0)
-            self.process_flows(flows, f_0)
-        if len(self.p_labels) > len(pressures):
-            self.p_labels = self.p_labels[:len(pressures)]
-        if len(self.f_labels) > len(flows):
-            self.f_labels = self.f_labels[:len(flows)]
+            if buffer != 0:
+                self.process_pressures(pressures[:-buffer], p_0)
+                self.process_flows(flows[:-buffer], f_0)
+            else:
+                self.process_pressures(pressures, p_0)
+                self.process_flows(flows, f_0)
+            self.p_labels = np.concatenate([self.p_labels, np.array([self.p_labels[-1]] * buffer)])
+            self.f_labels = np.concatenate([self.f_labels, np.array([self.f_labels[-1]] * buffer)])

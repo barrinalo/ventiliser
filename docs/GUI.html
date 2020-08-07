@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>ventiliser.GUI API documentation</title>
+<meta name="description" content="Created on Sun May
+3 12:31:52 2020 …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>ventiliser.GUI</code></h1>
+</header>
+<section id="section-intro">
+<p>Created on Sun May
+3 12:31:52 2020</p>
+<p>@author: David Chong Tian Wei</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+&#34;&#34;&#34;
+Created on Sun May  3 12:31:52 2020
+
+@author: David Chong Tian Wei
+&#34;&#34;&#34;
+from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QDialog, QDialogButtonBox, QAction, QTableView, QFileDialog, QLabel, QLineEdit, QHBoxLayout, QComboBox, QWidget
+from PyQt5.QtCore import Qt, QAbstractTableModel
+import pyqtgraph as pg
+import pyqtgraph.exporters
+import os
+import pandas as pd
+import numpy as np
+from ventiliser.FlowStates import FlowStates as fs
+from ventiliser.PressureStates import PressureStates as ps
+
+class GUI:
+    def __init__(self):
+        self.app = QApplication([])
+        self.root = MainWindow()
+        self.root.show()
+        self.app.exec()
+
+class MainWindow(QMainWindow):
+    pressure_options = [ps.peep.name, ps.pressure_rise.name, ps.pip.name, ps.pressure_drop.name]
+    flow_options = [fs.no_flow.name, fs.inspiration_initiation.name, fs.peak_inspiratory_flow.name,
+                    fs.inspiration_termination.name, fs.expiration_initiation.name, fs.peak_expiratory_flow.name,
+                    fs.expiration_termination.name]
+    pressure_pens = {ps.peep.name : pg.mkPen(color=&#34;g&#34;, width=2), ps.pressure_rise.name : pg.mkPen(color=&#34;b&#34;, width=2),
+                     ps.pip.name : pg.mkPen(color=&#34;m&#34;, width=2), ps.pressure_drop.name : pg.mkPen(color=&#34;k&#34;, width=2)}
+    flow_pens = {fs.no_flow.name : pg.mkPen(color=&#34;r&#34;, width=2), fs.inspiration_initiation.name : pg.mkPen(color=&#34;g&#34;, width=2),
+                 fs.peak_inspiratory_flow.name : pg.mkPen(color=&#34;c&#34;, width=2), fs.inspiration_termination.name : pg.mkPen(color=&#34;m&#34;, width=2),
+                 fs.expiration_initiation.name : pg.mkPen(color=&#34;y&#34;, width=2), fs.peak_expiratory_flow.name : pg.mkPen(color=&#34;k&#34;, width=2),
+                 fs.expiration_termination.name : pg.mkPen(color=&#34;b&#34;, width=2)}
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle(&#34;Neonatal Ventilation Data Annotation Tool&#34;)
+        self.resize(1280,720)
+        pg.setConfigOption(&#39;foreground&#39;, &#34;k&#34;)
+        pg.setConfigOption(&#39;background&#39;, &#39;w&#39;)
+        
+        # Label choices
+        info_layout = QHBoxLayout()
+        self.pressure_choice = QComboBox()
+        self.pressure_choice.addItems(MainWindow.pressure_options)
+        self.flow_choice = QComboBox()
+        self.flow_choice.addItems(MainWindow.flow_options)
+        info_layout.addWidget(QLabel(&#34;Pressure labels&#34;), 1)
+        info_layout.addWidget(self.pressure_choice, 2)
+        info_layout.addWidget(QLabel(&#34;Flow labels&#34;), 1)
+        info_layout.addWidget(self.flow_choice, 2)
+        
+        # Graphing
+        self.display = pg.GraphicsView()
+        self.display_layout = pg.GraphicsLayout()
+        self.display.setCentralItem(self.display_layout)
+        self.pressure_plot = self.display_layout.addPlot(title=&#34;Pressure waveform&#34;)
+        self.pressure_plot.showGrid(x=True, y=True)
+        self.pressure_plot.setMenuEnabled(False)
+        self.pressure_plot.setLabel(&#34;left&#34;, &#34;Pressure&#34;)
+        self.pressure_plot.setLabel(&#34;bottom&#34;, &#34;Time&#34;)
+        self.pressure_plot.scene().sigMouseClicked.connect(self.__on_graph_click)
+        self.pressure_plot.sigXRangeChanged.connect(self.__on_axis_change)
+        self.pressure_plot.setClipToView(True)
+        self.display_layout.nextRow()
+        self.flow_plot = self.display_layout.addPlot(title=&#34;Flow waveform&#34;)
+        self.flow_plot.showGrid(x=True, y=True)
+        self.flow_plot.setMenuEnabled(False)
+        self.flow_plot.setLabel(&#34;left&#34;, &#34;Flow&#34;)
+        self.flow_plot.setLabel(&#34;bottom&#34;, &#34;Time&#34;)
+        self.flow_plot.setClipToView(True)
+        self.flow_plot.getViewBox().setXLink(self.pressure_plot)
+        self.pressure_pen = pg.mkPen(color=&#34;r&#34;, width=2)
+        self.flow_pen = pg.mkPen(color=&#34;b&#34;, width=2)
+        
+        widget = QWidget()
+        layout = QVBoxLayout()
+        layout.addLayout(info_layout)
+        layout.addWidget(self.display)
+        widget.setLayout(layout)
+        
+        self.setCentralWidget(widget)
+        
+        # Default values
+        self.data = None
+        self.w_len = 500
+        self.interval = 0
+        self.pressure_labels = []
+        self.flow_labels = []
+        self.pressure_markers = []
+        self.flow_markers = []
+        self.xmin = 0
+        self.xmax = 0
+        
+        # For file i/o
+        self.File = self.menuBar().addMenu(&#34;&amp;File&#34;)
+        load_waveforms = QAction(&#34;Load Waveforms&#34;, self)
+        load_waveforms.triggered.connect(self.__load_waveforms)
+        self.File.addAction(load_waveforms)
+        save_annotations = QAction(&#34;Save Annotations&#34;, self)
+        save_annotations.triggered.connect(self.__save_annotations)
+        self.File.addAction(save_annotations)
+        load_annotations = QAction(&#34;Load Annotations&#34;, self)
+        load_annotations.triggered.connect(self.__load_annotations)
+        self.File.addAction(load_annotations)
+        save_graph = QAction(&#34;Save graph&#34;, self)
+        save_graph.triggered.connect(self.__save_graph)
+        self.File.addAction(save_graph)
+        
+        # For view settings
+        self.View = self.menuBar().addMenu(&#34;&amp;View&#34;)
+        view_settings = QAction(&#34;Display Settings&#34;, self)
+        view_settings.triggered.connect(self.__display_setting)
+        self.View.addAction(view_settings)
+        
+    def __load_waveforms(self):
+        fname = QFileDialog.getOpenFileName(self, &#34;Open File&#34;, os.getcwd(), &#34;Tabular data (*.csv *.tsv *txt)&#34;)
+        if fname[0] != &#34;&#34;:
+            data = pd.read_csv(fname[0], nrows=100)
+            column_selection = ColumnSelectionDialog(data)
+            if column_selection.exec():
+                self.data = pd.read_csv(fname[0], usecols=column_selection.selected_indices)
+                self.data[self.data.columns[0]] -= self.data[self.data.columns[0]].min()
+                self.data[self.data.columns[0]] = np.linspace(0,self.data[self.data.columns[0]].max(), self.data.shape[0])
+                self.pressure_labels = np.array([-1] * self.data.shape[0])
+                self.flow_labels = np.array([-1] * self.data.shape[0])
+                self.pressure_markers = {}
+                self.flow_markers = {}
+                self.interval = (self.data.iat[-1,0] - self.data.iat[0,0]) / self.data.shape[0]
+                self.__init_graph()
+                
+    def __load_annotations(self):
+        if self.data is not None:
+            fname = QFileDialog.getOpenFileName(self, &#34;Open File&#34;, os.getcwd(), &#34;(*.csv)&#34;)
+            if fname[0] != &#34;&#34;:
+                labels = pd.read_csv(fname[0])
+                self.pressure_labels = np.array([-1] * self.data.shape[0])
+                self.flow_labels = np.array([-1] * self.data.shape[0])
+                for i in range(labels.shape[0]):
+                    self.pressure_labels[labels.iat[i,0]] = labels.iat[i,1]
+                    self.flow_labels[labels.iat[i,0]] = labels.iat[i,2]
+                self.__clear_markers()
+                self.__plot_markers(self.xmin, self.xmax)
+        else:
+            Popup(&#34;Error&#34;, &#34;No data loaded so labels cannot be loaded&#34;)
+        
+    def __save_annotations(self):
+        if self.data is not None:
+            fname = QFileDialog.getSaveFileName(self, &#34;Save File&#34;, os.getcwd(), &#34;(*.csv)&#34;)
+            if fname[0] != &#34;&#34;:
+                output = []
+                for i in range(len(self.pressure_labels)):
+                    if self.pressure_labels[i] != -1 or self.flow_labels[i] != -1:
+                        row = {}
+                        row[&#34;index&#34;] = i
+                        row[&#34;pressure_annotations&#34;] = self.pressure_labels[i]
+                        row[&#34;flow_annotations&#34;] = self.flow_labels[i]
+                        output += [row]
+                output = pd.DataFrame(output)
+                if fname[0].find(&#34;.csv&#34;) &gt; -1:
+                    output.to_csv(fname[0], index=False)
+                else:
+                    output.to_csv(fname[0] + &#34;.csv&#34;, index=False)
+        else:
+            Popup(&#34;Error&#34;, &#34;No data loaded so there cannot be any labels&#34;)
+    
+    def __save_graph(self):
+        fname = QFileDialog.getSaveFileName(self, &#34;Save File&#34;, os.getcwd(), &#34;(*.jpg *.png)&#34;)
+        if fname[0] != &#34;&#34;:
+            exporter = pg.exporters.ImageExporter(self.display.scene())
+            exporter.export(fname[0])
+    
+    def __display_setting(self):
+        display_setting = DisplaySettingsDialog(self.w_len)
+        if display_setting.exec():
+            self.w_len = display_setting.w_len
+            if self.data is not None:
+                self.flow_plot.setXRange(self.flow_plot.viewRange()[0][0], self.flow_plot.viewRange()[0][0] + self.w_len * self.interval)
+            
+    def __init_graph(self):
+        self.__clear_markers()
+        self.pressure_plot.setLabel(&#34;left&#34;, self.data.columns[1])
+        self.pressure_plot.setLabel(&#34;bottom&#34;, self.data.columns[0])
+        self.flow_plot.setLabel(&#34;left&#34;, self.data.columns[2])
+        self.flow_plot.setLabel(&#34;bottom&#34;, self.data.columns[0])
+        self.pressure_plot.plot(self.data.iloc[:,0], self.data.iloc[:,1], pen=self.pressure_pen)
+        self.flow_plot.plot(self.data.iloc[:,0], self.data.iloc[:,2], pen=self.flow_pen)
+        self.flow_plot.setXRange(0,self.w_len * self.interval)
+        self.xmin = 0
+        self.xmax = int(self.w_len * self.interval)
+    
+    def __on_axis_change(self, event):
+        lower = event.viewRange()[0][0]
+        if lower &lt; 0:
+            lower = 0
+        upper = event.viewRange()[0][1]
+        if upper &gt; self.data.shape[0] * self.interval:
+            upper = self.data.shape[0] * self.interval
+        temp = {}
+        for key in self.pressure_markers.keys():
+            if key not in range(int(lower / self.interval), int(upper / self.interval)):
+                self.pressure_plot.removeItem(self.pressure_markers[key])
+            else:
+                temp[key] = self.pressure_markers[key]
+        self.pressure_markers = temp
+        temp = {}
+        for key in self.flow_markers.keys():
+            if key not in range(int(lower / self.interval), int(upper / self.interval)):
+                self.flow_plot.removeItem(self.flow_markers[key])
+            else:
+                temp[key] = self.flow_markers[key]
+        self.flow_markers = temp
+        if upper &gt; self.xmax:
+            self.__plot_markers(self.xmax, upper)
+        elif lower &lt; self.xmin:
+            self.__plot_markers(lower, self.xmin)
+        self.xmin = lower
+        self.xmax = upper
+    
+    def __on_graph_click(self, event):
+        if self.data is None:
+            return
+        if self.pressure_plot.getAxis(&#34;bottom&#34;) == event.currentItem:
+            xpos = self.pressure_plot.getViewBox().mapSceneToView(event.scenePos()).x()
+            xind = int(xpos / self.interval)
+            if xind &lt; 0 or xind &gt;= self.data.shape[0]:
+                return
+            if self.pressure_labels[xind] == ps[self.pressure_choice.currentText()].value:
+                self.pressure_labels[xind] = -1
+                if xind in self.pressure_markers.keys():
+                    self.pressure_plot.removeItem(self.pressure_markers[xind])
+                    del(self.pressure_markers[xind])
+            else:
+                self.pressure_labels[xind] = ps[self.pressure_choice.currentText()].value
+                if xind in self.pressure_markers.keys():
+                    self.pressure_plot.removeItem(self.pressure_markers[xind])
+                    del(self.pressure_markers[xind])
+                self.pressure_markers[xind] = self.pressure_plot.addLine(x=self.data.iat[xind,0], pen=MainWindow.pressure_pens[self.pressure_choice.currentText()], label=self.pressure_choice.currentText(), labelOpts={&#34;position&#34; :(ps(self.pressure_labels[xind]).value+1)/5})
+            
+        elif self.flow_plot.getAxis(&#34;bottom&#34;) == event.currentItem:
+            xpos = self.pressure_plot.getViewBox().mapSceneToView(event.scenePos()).x()
+            xind = int(xpos / self.interval)
+            if xind &lt; 0 or xind &gt;= self.data.shape[0]:
+                return
+            if self.flow_labels[xind] == fs[self.flow_choice.currentText()].value:
+                self.flow_labels[xind] = -1
+                if xind in self.flow_markers.keys():
+                    self.flow_plot.removeItem(self.flow_markers[xind])
+                    del(self.flow_markers[xind])
+            else:
+                self.flow_labels[xind] = fs[self.flow_choice.currentText()].value
+                if xind in self.flow_markers.keys():
+                    self.flow_plot.removeItem(self.flow_markers[xind])
+                    del(self.flow_markers[xind])
+                self.flow_markers[xind] = self.flow_plot.addLine(x=self.data.iat[xind,0], pen=MainWindow.flow_pens[self.flow_choice.currentText()], label=self.flow_choice.currentText(), labelOpts={&#34;position&#34; : (fs(self.flow_labels[xind]).value + 1)/8})
+    
+    def __clear_markers(self):
+        for k,v in self.pressure_markers.items():
+            self.pressure_plot.removeItem(v)
+        for k,v in self.flow_markers.items():
+            self.flow_plot.removeItem(v)
+        self.pressure_markers = {}
+        self.flow_markers={}
+    
+    def __plot_markers(self, xmin,xmax):
+        for i in range(int(xmin / self.interval), int(xmax / self.interval)):
+            if self.pressure_labels[i] != -1:
+                self.pressure_markers[i] = self.pressure_plot.addLine(self.data.iat[i,0], pen=self.pressure_pens[ps(self.pressure_labels[i]).name], label=ps(self.pressure_labels[i]).name, labelOpts={&#34;position&#34; :(ps(self.pressure_labels[i]).value+1)/5})
+            if self.flow_labels[i] != -1:
+                self.flow_markers[i] = self.flow_plot.addLine(self.data.iat[i,0], pen=self.flow_pens[fs(self.flow_labels[i]).name], label=fs(self.flow_labels[i]).name,labelOpts={&#34;position&#34; : (fs(self.flow_labels[i]).value + 1)/8})
+class DisplaySettingsDialog(QDialog):
+    def __init__(self, w_len, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.w_len = w_len
+        self.setWindowTitle(&#34;Set display settings&#34;)
+        
+        w_len_row = QHBoxLayout()
+        w_len_row.addWidget(QLabel(&#34;Window Length&#34;))
+        self.w_len_entry = QLineEdit()
+        self.w_len_entry.setText(str(self.w_len))
+        w_len_row.addWidget(self.w_len_entry)
+        
+        layout = QVBoxLayout()
+        layout.addLayout(w_len_row)
+        
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self._accepted)
+        self.buttonBox.rejected.connect(self.reject)
+        
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
+        
+    def _accepted(self):
+        if self.w_len_entry.text().isnumeric():
+            self.w_len = int(float(self.w_len_entry.text()))
+            if self.w_len &gt; 0:
+                self.accept()
+            else:
+                Popup(&#34;Error&#34;, &#34;Window length must be larger than 0&#34;)
+        else:
+            Popup(&#34;Error&#34;, &#34;Window length must be numeric&#34;)
+        
+
+class ColumnSelectionDialog(QDialog):
+    def __init__(self, data, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle(&#34;Select the columns that contain Time, Pressure, and Flow&#34;)
+        self.resize(800,600)
+        
+        self.data = data
+        self.model = TableModel(self.data)
+        self.tableview = QTableView()
+        self.tableview.setModel(self.model)
+        
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self._accepted)
+        self.buttonBox.rejected.connect(self.reject)
+        
+        layout = QVBoxLayout()
+        layout.addWidget(self.tableview)
+        layout.addWidget(self.buttonBox)
+        
+        self.setLayout(layout)
+    
+    def _accepted(self):
+        indexes = self.tableview.selectionModel().selectedColumns()
+        if len(indexes) == 3:
+            self.selected_indices = []
+            for i in sorted(indexes):
+                self.selected_indices.append(i.column())
+            if self.data.iloc[:,0].dtype == &#34;int64&#34;:
+                self.accept()
+            else:
+                Popup(&#34;Error&#34;,&#34;Time column must be of type integer&#34;)
+        else:
+            Popup(&#34;Error&#34;, &#34;Please select columns for Time, Pressure, and Flow&#34;)
+
+
+class TableModel(QAbstractTableModel):
+    def __init__(self, data):
+        super().__init__()
+        self.data = data
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return str(self.data.iat[index.row(), index.column()])
+    def rowCount(self, index):
+        return self.data.shape[0]
+    def columnCount(self, index):
+        return self.data.shape[1]
+    def headerData(self, section, orientation, role):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return str(self.data.columns[section])
+            elif orientation == Qt.Vertical:
+                return str(self.data.index[section])
+
+
+class Popup(QDialog):
+    def __init__(self, header, msg, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle(header)
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel(msg))
+        self.setLayout(layout)
+        self.exec()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="ventiliser.GUI.ColumnSelectionDialog"><code class="flex name class">
+<span>class <span class="ident">ColumnSelectionDialog</span></span>
+<span>(</span><span>data, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>QDialog(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ColumnSelectionDialog(QDialog):
+    def __init__(self, data, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle(&#34;Select the columns that contain Time, Pressure, and Flow&#34;)
+        self.resize(800,600)
+        
+        self.data = data
+        self.model = TableModel(self.data)
+        self.tableview = QTableView()
+        self.tableview.setModel(self.model)
+        
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self._accepted)
+        self.buttonBox.rejected.connect(self.reject)
+        
+        layout = QVBoxLayout()
+        layout.addWidget(self.tableview)
+        layout.addWidget(self.buttonBox)
+        
+        self.setLayout(layout)
+    
+    def _accepted(self):
+        indexes = self.tableview.selectionModel().selectedColumns()
+        if len(indexes) == 3:
+            self.selected_indices = []
+            for i in sorted(indexes):
+                self.selected_indices.append(i.column())
+            if self.data.iloc[:,0].dtype == &#34;int64&#34;:
+                self.accept()
+            else:
+                Popup(&#34;Error&#34;,&#34;Time column must be of type integer&#34;)
+        else:
+            Popup(&#34;Error&#34;, &#34;Please select columns for Time, Pressure, and Flow&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>PyQt5.QtWidgets.QDialog</li>
+<li>PyQt5.QtWidgets.QWidget</li>
+<li>PyQt5.QtCore.QObject</li>
+<li>sip.wrapper</li>
+<li>PyQt5.QtGui.QPaintDevice</li>
+<li>sip.simplewrapper</li>
+</ul>
+</dd>
+<dt id="ventiliser.GUI.DisplaySettingsDialog"><code class="flex name class">
+<span>class <span class="ident">DisplaySettingsDialog</span></span>
+<span>(</span><span>w_len, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>QDialog(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DisplaySettingsDialog(QDialog):
+    def __init__(self, w_len, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.w_len = w_len
+        self.setWindowTitle(&#34;Set display settings&#34;)
+        
+        w_len_row = QHBoxLayout()
+        w_len_row.addWidget(QLabel(&#34;Window Length&#34;))
+        self.w_len_entry = QLineEdit()
+        self.w_len_entry.setText(str(self.w_len))
+        w_len_row.addWidget(self.w_len_entry)
+        
+        layout = QVBoxLayout()
+        layout.addLayout(w_len_row)
+        
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self._accepted)
+        self.buttonBox.rejected.connect(self.reject)
+        
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
+        
+    def _accepted(self):
+        if self.w_len_entry.text().isnumeric():
+            self.w_len = int(float(self.w_len_entry.text()))
+            if self.w_len &gt; 0:
+                self.accept()
+            else:
+                Popup(&#34;Error&#34;, &#34;Window length must be larger than 0&#34;)
+        else:
+            Popup(&#34;Error&#34;, &#34;Window length must be numeric&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>PyQt5.QtWidgets.QDialog</li>
+<li>PyQt5.QtWidgets.QWidget</li>
+<li>PyQt5.QtCore.QObject</li>
+<li>sip.wrapper</li>
+<li>PyQt5.QtGui.QPaintDevice</li>
+<li>sip.simplewrapper</li>
+</ul>
+</dd>
+<dt id="ventiliser.GUI.GUI"><code class="flex name class">
+<span>class <span class="ident">GUI</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GUI:
+    def __init__(self):
+        self.app = QApplication([])
+        self.root = MainWindow()
+        self.root.show()
+        self.app.exec()</code></pre>
+</details>
+</dd>
+<dt id="ventiliser.GUI.MainWindow"><code class="flex name class">
+<span>class <span class="ident">MainWindow</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>QMainWindow(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MainWindow(QMainWindow):
+    pressure_options = [ps.peep.name, ps.pressure_rise.name, ps.pip.name, ps.pressure_drop.name]
+    flow_options = [fs.no_flow.name, fs.inspiration_initiation.name, fs.peak_inspiratory_flow.name,
+                    fs.inspiration_termination.name, fs.expiration_initiation.name, fs.peak_expiratory_flow.name,
+                    fs.expiration_termination.name]
+    pressure_pens = {ps.peep.name : pg.mkPen(color=&#34;g&#34;, width=2), ps.pressure_rise.name : pg.mkPen(color=&#34;b&#34;, width=2),
+                     ps.pip.name : pg.mkPen(color=&#34;m&#34;, width=2), ps.pressure_drop.name : pg.mkPen(color=&#34;k&#34;, width=2)}
+    flow_pens = {fs.no_flow.name : pg.mkPen(color=&#34;r&#34;, width=2), fs.inspiration_initiation.name : pg.mkPen(color=&#34;g&#34;, width=2),
+                 fs.peak_inspiratory_flow.name : pg.mkPen(color=&#34;c&#34;, width=2), fs.inspiration_termination.name : pg.mkPen(color=&#34;m&#34;, width=2),
+                 fs.expiration_initiation.name : pg.mkPen(color=&#34;y&#34;, width=2), fs.peak_expiratory_flow.name : pg.mkPen(color=&#34;k&#34;, width=2),
+                 fs.expiration_termination.name : pg.mkPen(color=&#34;b&#34;, width=2)}
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle(&#34;Neonatal Ventilation Data Annotation Tool&#34;)
+        self.resize(1280,720)
+        pg.setConfigOption(&#39;foreground&#39;, &#34;k&#34;)
+        pg.setConfigOption(&#39;background&#39;, &#39;w&#39;)
+        
+        # Label choices
+        info_layout = QHBoxLayout()
+        self.pressure_choice = QComboBox()
+        self.pressure_choice.addItems(MainWindow.pressure_options)
+        self.flow_choice = QComboBox()
+        self.flow_choice.addItems(MainWindow.flow_options)
+        info_layout.addWidget(QLabel(&#34;Pressure labels&#34;), 1)
+        info_layout.addWidget(self.pressure_choice, 2)
+        info_layout.addWidget(QLabel(&#34;Flow labels&#34;), 1)
+        info_layout.addWidget(self.flow_choice, 2)
+        
+        # Graphing
+        self.display = pg.GraphicsView()
+        self.display_layout = pg.GraphicsLayout()
+        self.display.setCentralItem(self.display_layout)
+        self.pressure_plot = self.display_layout.addPlot(title=&#34;Pressure waveform&#34;)
+        self.pressure_plot.showGrid(x=True, y=True)
+        self.pressure_plot.setMenuEnabled(False)
+        self.pressure_plot.setLabel(&#34;left&#34;, &#34;Pressure&#34;)
+        self.pressure_plot.setLabel(&#34;bottom&#34;, &#34;Time&#34;)
+        self.pressure_plot.scene().sigMouseClicked.connect(self.__on_graph_click)
+        self.pressure_plot.sigXRangeChanged.connect(self.__on_axis_change)
+        self.pressure_plot.setClipToView(True)
+        self.display_layout.nextRow()
+        self.flow_plot = self.display_layout.addPlot(title=&#34;Flow waveform&#34;)
+        self.flow_plot.showGrid(x=True, y=True)
+        self.flow_plot.setMenuEnabled(False)
+        self.flow_plot.setLabel(&#34;left&#34;, &#34;Flow&#34;)
+        self.flow_plot.setLabel(&#34;bottom&#34;, &#34;Time&#34;)
+        self.flow_plot.setClipToView(True)
+        self.flow_plot.getViewBox().setXLink(self.pressure_plot)
+        self.pressure_pen = pg.mkPen(color=&#34;r&#34;, width=2)
+        self.flow_pen = pg.mkPen(color=&#34;b&#34;, width=2)
+        
+        widget = QWidget()
+        layout = QVBoxLayout()
+        layout.addLayout(info_layout)
+        layout.addWidget(self.display)
+        widget.setLayout(layout)
+        
+        self.setCentralWidget(widget)
+        
+        # Default values
+        self.data = None
+        self.w_len = 500
+        self.interval = 0
+        self.pressure_labels = []
+        self.flow_labels = []
+        self.pressure_markers = []
+        self.flow_markers = []
+        self.xmin = 0
+        self.xmax = 0
+        
+        # For file i/o
+        self.File = self.menuBar().addMenu(&#34;&amp;File&#34;)
+        load_waveforms = QAction(&#34;Load Waveforms&#34;, self)
+        load_waveforms.triggered.connect(self.__load_waveforms)
+        self.File.addAction(load_waveforms)
+        save_annotations = QAction(&#34;Save Annotations&#34;, self)
+        save_annotations.triggered.connect(self.__save_annotations)
+        self.File.addAction(save_annotations)
+        load_annotations = QAction(&#34;Load Annotations&#34;, self)
+        load_annotations.triggered.connect(self.__load_annotations)
+        self.File.addAction(load_annotations)
+        save_graph = QAction(&#34;Save graph&#34;, self)
+        save_graph.triggered.connect(self.__save_graph)
+        self.File.addAction(save_graph)
+        
+        # For view settings
+        self.View = self.menuBar().addMenu(&#34;&amp;View&#34;)
+        view_settings = QAction(&#34;Display Settings&#34;, self)
+        view_settings.triggered.connect(self.__display_setting)
+        self.View.addAction(view_settings)
+        
+    def __load_waveforms(self):
+        fname = QFileDialog.getOpenFileName(self, &#34;Open File&#34;, os.getcwd(), &#34;Tabular data (*.csv *.tsv *txt)&#34;)
+        if fname[0] != &#34;&#34;:
+            data = pd.read_csv(fname[0], nrows=100)
+            column_selection = ColumnSelectionDialog(data)
+            if column_selection.exec():
+                self.data = pd.read_csv(fname[0], usecols=column_selection.selected_indices)
+                self.data[self.data.columns[0]] -= self.data[self.data.columns[0]].min()
+                self.data[self.data.columns[0]] = np.linspace(0,self.data[self.data.columns[0]].max(), self.data.shape[0])
+                self.pressure_labels = np.array([-1] * self.data.shape[0])
+                self.flow_labels = np.array([-1] * self.data.shape[0])
+                self.pressure_markers = {}
+                self.flow_markers = {}
+                self.interval = (self.data.iat[-1,0] - self.data.iat[0,0]) / self.data.shape[0]
+                self.__init_graph()
+                
+    def __load_annotations(self):
+        if self.data is not None:
+            fname = QFileDialog.getOpenFileName(self, &#34;Open File&#34;, os.getcwd(), &#34;(*.csv)&#34;)
+            if fname[0] != &#34;&#34;:
+                labels = pd.read_csv(fname[0])
+                self.pressure_labels = np.array([-1] * self.data.shape[0])
+                self.flow_labels = np.array([-1] * self.data.shape[0])
+                for i in range(labels.shape[0]):
+                    self.pressure_labels[labels.iat[i,0]] = labels.iat[i,1]
+                    self.flow_labels[labels.iat[i,0]] = labels.iat[i,2]
+                self.__clear_markers()
+                self.__plot_markers(self.xmin, self.xmax)
+        else:
+            Popup(&#34;Error&#34;, &#34;No data loaded so labels cannot be loaded&#34;)
+        
+    def __save_annotations(self):
+        if self.data is not None:
+            fname = QFileDialog.getSaveFileName(self, &#34;Save File&#34;, os.getcwd(), &#34;(*.csv)&#34;)
+            if fname[0] != &#34;&#34;:
+                output = []
+                for i in range(len(self.pressure_labels)):
+                    if self.pressure_labels[i] != -1 or self.flow_labels[i] != -1:
+                        row = {}
+                        row[&#34;index&#34;] = i
+                        row[&#34;pressure_annotations&#34;] = self.pressure_labels[i]
+                        row[&#34;flow_annotations&#34;] = self.flow_labels[i]
+                        output += [row]
+                output = pd.DataFrame(output)
+                if fname[0].find(&#34;.csv&#34;) &gt; -1:
+                    output.to_csv(fname[0], index=False)
+                else:
+                    output.to_csv(fname[0] + &#34;.csv&#34;, index=False)
+        else:
+            Popup(&#34;Error&#34;, &#34;No data loaded so there cannot be any labels&#34;)
+    
+    def __save_graph(self):
+        fname = QFileDialog.getSaveFileName(self, &#34;Save File&#34;, os.getcwd(), &#34;(*.jpg *.png)&#34;)
+        if fname[0] != &#34;&#34;:
+            exporter = pg.exporters.ImageExporter(self.display.scene())
+            exporter.export(fname[0])
+    
+    def __display_setting(self):
+        display_setting = DisplaySettingsDialog(self.w_len)
+        if display_setting.exec():
+            self.w_len = display_setting.w_len
+            if self.data is not None:
+                self.flow_plot.setXRange(self.flow_plot.viewRange()[0][0], self.flow_plot.viewRange()[0][0] + self.w_len * self.interval)
+            
+    def __init_graph(self):
+        self.__clear_markers()
+        self.pressure_plot.setLabel(&#34;left&#34;, self.data.columns[1])
+        self.pressure_plot.setLabel(&#34;bottom&#34;, self.data.columns[0])
+        self.flow_plot.setLabel(&#34;left&#34;, self.data.columns[2])
+        self.flow_plot.setLabel(&#34;bottom&#34;, self.data.columns[0])
+        self.pressure_plot.plot(self.data.iloc[:,0], self.data.iloc[:,1], pen=self.pressure_pen)
+        self.flow_plot.plot(self.data.iloc[:,0], self.data.iloc[:,2], pen=self.flow_pen)
+        self.flow_plot.setXRange(0,self.w_len * self.interval)
+        self.xmin = 0
+        self.xmax = int(self.w_len * self.interval)
+    
+    def __on_axis_change(self, event):
+        lower = event.viewRange()[0][0]
+        if lower &lt; 0:
+            lower = 0
+        upper = event.viewRange()[0][1]
+        if upper &gt; self.data.shape[0] * self.interval:
+            upper = self.data.shape[0] * self.interval
+        temp = {}
+        for key in self.pressure_markers.keys():
+            if key not in range(int(lower / self.interval), int(upper / self.interval)):
+                self.pressure_plot.removeItem(self.pressure_markers[key])
+            else:
+                temp[key] = self.pressure_markers[key]
+        self.pressure_markers = temp
+        temp = {}
+        for key in self.flow_markers.keys():
+            if key not in range(int(lower / self.interval), int(upper / self.interval)):
+                self.flow_plot.removeItem(self.flow_markers[key])
+            else:
+                temp[key] = self.flow_markers[key]
+        self.flow_markers = temp
+        if upper &gt; self.xmax:
+            self.__plot_markers(self.xmax, upper)
+        elif lower &lt; self.xmin:
+            self.__plot_markers(lower, self.xmin)
+        self.xmin = lower
+        self.xmax = upper
+    
+    def __on_graph_click(self, event):
+        if self.data is None:
+            return
+        if self.pressure_plot.getAxis(&#34;bottom&#34;) == event.currentItem:
+            xpos = self.pressure_plot.getViewBox().mapSceneToView(event.scenePos()).x()
+            xind = int(xpos / self.interval)
+            if xind &lt; 0 or xind &gt;= self.data.shape[0]:
+                return
+            if self.pressure_labels[xind] == ps[self.pressure_choice.currentText()].value:
+                self.pressure_labels[xind] = -1
+                if xind in self.pressure_markers.keys():
+                    self.pressure_plot.removeItem(self.pressure_markers[xind])
+                    del(self.pressure_markers[xind])
+            else:
+                self.pressure_labels[xind] = ps[self.pressure_choice.currentText()].value
+                if xind in self.pressure_markers.keys():
+                    self.pressure_plot.removeItem(self.pressure_markers[xind])
+                    del(self.pressure_markers[xind])
+                self.pressure_markers[xind] = self.pressure_plot.addLine(x=self.data.iat[xind,0], pen=MainWindow.pressure_pens[self.pressure_choice.currentText()], label=self.pressure_choice.currentText(), labelOpts={&#34;position&#34; :(ps(self.pressure_labels[xind]).value+1)/5})
+            
+        elif self.flow_plot.getAxis(&#34;bottom&#34;) == event.currentItem:
+            xpos = self.pressure_plot.getViewBox().mapSceneToView(event.scenePos()).x()
+            xind = int(xpos / self.interval)
+            if xind &lt; 0 or xind &gt;= self.data.shape[0]:
+                return
+            if self.flow_labels[xind] == fs[self.flow_choice.currentText()].value:
+                self.flow_labels[xind] = -1
+                if xind in self.flow_markers.keys():
+                    self.flow_plot.removeItem(self.flow_markers[xind])
+                    del(self.flow_markers[xind])
+            else:
+                self.flow_labels[xind] = fs[self.flow_choice.currentText()].value
+                if xind in self.flow_markers.keys():
+                    self.flow_plot.removeItem(self.flow_markers[xind])
+                    del(self.flow_markers[xind])
+                self.flow_markers[xind] = self.flow_plot.addLine(x=self.data.iat[xind,0], pen=MainWindow.flow_pens[self.flow_choice.currentText()], label=self.flow_choice.currentText(), labelOpts={&#34;position&#34; : (fs(self.flow_labels[xind]).value + 1)/8})
+    
+    def __clear_markers(self):
+        for k,v in self.pressure_markers.items():
+            self.pressure_plot.removeItem(v)
+        for k,v in self.flow_markers.items():
+            self.flow_plot.removeItem(v)
+        self.pressure_markers = {}
+        self.flow_markers={}
+    
+    def __plot_markers(self, xmin,xmax):
+        for i in range(int(xmin / self.interval), int(xmax / self.interval)):
+            if self.pressure_labels[i] != -1:
+                self.pressure_markers[i] = self.pressure_plot.addLine(self.data.iat[i,0], pen=self.pressure_pens[ps(self.pressure_labels[i]).name], label=ps(self.pressure_labels[i]).name, labelOpts={&#34;position&#34; :(ps(self.pressure_labels[i]).value+1)/5})
+            if self.flow_labels[i] != -1:
+                self.flow_markers[i] = self.flow_plot.addLine(self.data.iat[i,0], pen=self.flow_pens[fs(self.flow_labels[i]).name], label=fs(self.flow_labels[i]).name,labelOpts={&#34;position&#34; : (fs(self.flow_labels[i]).value + 1)/8})</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>PyQt5.QtWidgets.QMainWindow</li>
+<li>PyQt5.QtWidgets.QWidget</li>
+<li>PyQt5.QtCore.QObject</li>
+<li>sip.wrapper</li>
+<li>PyQt5.QtGui.QPaintDevice</li>
+<li>sip.simplewrapper</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="ventiliser.GUI.MainWindow.flow_options"><code class="name">var <span class="ident">flow_options</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="ventiliser.GUI.MainWindow.flow_pens"><code class="name">var <span class="ident">flow_pens</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="ventiliser.GUI.MainWindow.pressure_options"><code class="name">var <span class="ident">pressure_options</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="ventiliser.GUI.MainWindow.pressure_pens"><code class="name">var <span class="ident">pressure_pens</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="ventiliser.GUI.Popup"><code class="flex name class">
+<span>class <span class="ident">Popup</span></span>
+<span>(</span><span>header, msg, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>QDialog(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Popup(QDialog):
+    def __init__(self, header, msg, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle(header)
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel(msg))
+        self.setLayout(layout)
+        self.exec()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>PyQt5.QtWidgets.QDialog</li>
+<li>PyQt5.QtWidgets.QWidget</li>
+<li>PyQt5.QtCore.QObject</li>
+<li>sip.wrapper</li>
+<li>PyQt5.QtGui.QPaintDevice</li>
+<li>sip.simplewrapper</li>
+</ul>
+</dd>
+<dt id="ventiliser.GUI.TableModel"><code class="flex name class">
+<span>class <span class="ident">TableModel</span></span>
+<span>(</span><span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>QAbstractTableModel(parent: QObject = None)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TableModel(QAbstractTableModel):
+    def __init__(self, data):
+        super().__init__()
+        self.data = data
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return str(self.data.iat[index.row(), index.column()])
+    def rowCount(self, index):
+        return self.data.shape[0]
+    def columnCount(self, index):
+        return self.data.shape[1]
+    def headerData(self, section, orientation, role):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return str(self.data.columns[section])
+            elif orientation == Qt.Vertical:
+                return str(self.data.index[section])</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>PyQt5.QtCore.QAbstractTableModel</li>
+<li>PyQt5.QtCore.QAbstractItemModel</li>
+<li>PyQt5.QtCore.QObject</li>
+<li>sip.wrapper</li>
+<li>sip.simplewrapper</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="ventiliser.GUI.TableModel.columnCount"><code class="name flex">
+<span>def <span class="ident">columnCount</span></span>(<span>self, index)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>columnCount(self, parent: QModelIndex = QModelIndex()) -&gt; int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def columnCount(self, index):
+    return self.data.shape[1]</code></pre>
+</details>
+</dd>
+<dt id="ventiliser.GUI.TableModel.data"><code class="name flex">
+<span>def <span class="ident">data</span></span>(<span>self, index, role)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>data(self, QModelIndex, role: int = Qt.DisplayRole) -&gt; Any</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data(self, index, role):
+    if role == Qt.DisplayRole:
+        return str(self.data.iat[index.row(), index.column()])</code></pre>
+</details>
+</dd>
+<dt id="ventiliser.GUI.TableModel.headerData"><code class="name flex">
+<span>def <span class="ident">headerData</span></span>(<span>self, section, orientation, role)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>headerData(self, int, Qt.Orientation, role: int = Qt.DisplayRole) -&gt; Any</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def headerData(self, section, orientation, role):
+    if role == Qt.DisplayRole:
+        if orientation == Qt.Horizontal:
+            return str(self.data.columns[section])
+        elif orientation == Qt.Vertical:
+            return str(self.data.index[section])</code></pre>
+</details>
+</dd>
+<dt id="ventiliser.GUI.TableModel.rowCount"><code class="name flex">
+<span>def <span class="ident">rowCount</span></span>(<span>self, index)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>rowCount(self, parent: QModelIndex = QModelIndex()) -&gt; int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rowCount(self, index):
+    return self.data.shape[0]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="ventiliser" href="index.html">ventiliser</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="ventiliser.GUI.ColumnSelectionDialog" href="#ventiliser.GUI.ColumnSelectionDialog">ColumnSelectionDialog</a></code></h4>
+</li>
+<li>
+<h4><code><a title="ventiliser.GUI.DisplaySettingsDialog" href="#ventiliser.GUI.DisplaySettingsDialog">DisplaySettingsDialog</a></code></h4>
+</li>
+<li>
+<h4><code><a title="ventiliser.GUI.GUI" href="#ventiliser.GUI.GUI">GUI</a></code></h4>
+</li>
+<li>
+<h4><code><a title="ventiliser.GUI.MainWindow" href="#ventiliser.GUI.MainWindow">MainWindow</a></code></h4>
+<ul class="">
+<li><code><a title="ventiliser.GUI.MainWindow.flow_options" href="#ventiliser.GUI.MainWindow.flow_options">flow_options</a></code></li>
+<li><code><a title="ventiliser.GUI.MainWindow.flow_pens" href="#ventiliser.GUI.MainWindow.flow_pens">flow_pens</a></code></li>
+<li><code><a title="ventiliser.GUI.MainWindow.pressure_options" href="#ventiliser.GUI.MainWindow.pressure_options">pressure_options</a></code></li>
+<li><code><a title="ventiliser.GUI.MainWindow.pressure_pens" href="#ventiliser.GUI.MainWindow.pressure_pens">pressure_pens</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="ventiliser.GUI.Popup" href="#ventiliser.GUI.Popup">Popup</a></code></h4>
+</li>
+<li>
+<h4><code><a title="ventiliser.GUI.TableModel" href="#ventiliser.GUI.TableModel">TableModel</a></code></h4>
+<ul class="">
+<li><code><a title="ventiliser.GUI.TableModel.columnCount" href="#ventiliser.GUI.TableModel.columnCount">columnCount</a></code></li>
+<li><code><a title="ventiliser.GUI.TableModel.data" href="#ventiliser.GUI.TableModel.data">data</a></code></li>
+<li><code><a title="ventiliser.GUI.TableModel.headerData" href="#ventiliser.GUI.TableModel.headerData">headerData</a></code></li>
+<li><code><a title="ventiliser.GUI.TableModel.rowCount" href="#ventiliser.GUI.TableModel.rowCount">rowCount</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
+</footer>
+</body>
+</html>

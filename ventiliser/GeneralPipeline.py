@@ -13,7 +13,8 @@ import json
 import datetime
 
 class GeneralPipeline:
-    """ class to provide a general use case for the pipeline
+    """ 
+    Utility class to help tie the different parts of the package together into an easy to use pipeline
     
     Attributes
     ----------
@@ -29,17 +30,11 @@ class GeneralPipeline:
         Whether configure has been called on the object
     data_loaded : Boolean
         Whether load_data has been called on the object
-        
-    Methods
-    -------
-    load_data(path, cols)
-        Loads a record and pre-processes it with linear interpolation and baseline correction
-    configure(correction_window, flow_unit_converter, freq, peep, flow_thresh, w_len, f_base, leak_perc_thresh, permit_double_cycling, insp_hold_length, exp_hold_length)
-        Exposes the underlying StateMapper and PhaseLabeller parameters for customisation of the run
-    process(log, output_files)
-        Runs the mapper and then the labeller process methods with optional logging and output of results to files
     """
     def __init__(self):
+        """
+        Initialises the pipeline with placeholder objects
+        """
         self.data = None
         self.mapper = StateMapper()
         self.labeller = PhaseLabeller()
@@ -48,15 +43,19 @@ class GeneralPipeline:
         self.data_loaded = False
 
     def load_data(self, path, cols):
-        """Loads the data specified by path and cols and performs linear interpolation with window average baseline correction
+        """
+        Loads the data specified by path and cols and performs linear interpolation with window average baseline correction
         
-        :param path: Path to data file
-        :type path: string
-        :param cols: Columns in the data file corresponding to time, pressure, and flow respectively
-        :type cols: Array like of integer
+        Parameters
+        ----------
+        path : string
+            Path to the data file
+        cols : array like of int
+            Columns in the data file corresponding to time, pressure, and flow respectively
         
-        :returns: None
-        :rtype: None
+        Returns
+        -------
+        None
         """
         if not self.configured:
             print("Please configure the pipeline first")
@@ -69,36 +68,40 @@ class GeneralPipeline:
         self.data_loaded = True
         
     def configure(self,correction_window=None, flow_unit_converter=lambda x:x,
-                  freq=100, peep=5.5, flow_thresh=0.1, w_len=3, f_base=0,
+                  freq=100, peep=5.5, flow_thresh=0.1, t_len=0.03, f_base=0,
                   leak_perc_thresh=0.66, permit_double_cycling=False,
                   insp_hold_length=0.5, exp_hold_length=0.05):
-        """ Overall coniguration for the pipeline. Please call before process and load data
+        """ 
+        Overall coniguration for the pipeline. Please call before process and load data
         
-        :param correction_window: Size of the window to perform baseline correction by centering on average
-        :type correction_window: None or positive integer
-        :param flow_unit_converter: Function to convert units of flow and flow_threshold to desired units to be displayed
-        :type flow_unit_converter: f: R->R
-        :param freq: Sampling rate of the sample being analyzed
-        :type freq: integer
-        :param peep: The value which will be considered baseline pressure
-        :type peep: real
-        :param flow_thresh: The minimum threshold that flow must cross to be considered a new breath
-        :type flow_thresh: real
-        :param w_len: Length of the window in data points to perform state mapping
-        :type w_len: integer
-        :param f_base: Value for flow to be considered no_flow
-        :type f_base: real
-        :param leak_perc_thresh: Maximum percentage difference between inspiratory and expiratory volume for a breath to be considered normal
-        :type leak_perc_thresh: real
-        :param permit_double_cycling: Whether double cycles will be merged into single breath
-        :type permit_double_cycling: boolean
-        :param insp_hold_length: Maximum time in seconds from inspiration until an expiration is encountered, after which the breath is terminated
-        :type insp_hold_length: real
-        :param exp_hold_length: Maximum expiratory hold length between breaths to be considered double cycling
-        :type exp_hold_length: real
+        Parameters
+        ----------
+        correction_window : int, optional
+            Size of the window to perform baseline correction by centering on average. Defaults to None (no correction).
+        flow_unit_converter : f: real -> real, optional
+            Function to convert units of flow and flow_threshold to desired units to be displayed. Defaults to the identity function.
+        freq : int, optional
+            Sampling rate of the sample being analyzed. Defaults to 100
+        peep : real, optional
+            The value which will be considered baseline pressure. Defaults to 5.5
+        flow_thresh : real, optional
+            The minimum threshold that flow must cross to be considered a new breath. Defaults to 0.1
+        t_len : real, optional
+            Length of the window in seconds to perform state mapping. Defaults to 0.03
+        f_base : real, optional
+            Value for flow to be considered no_flow. Defaults to 0
+        leak_perc_thresh : real, optional
+            Maximum percentage difference between inspiratory and expiratory volume for a breath to be considered normal. Defaults to 66%.
+        permit_double_cycling : boolean, optional
+            Flag to decide whether to mergre double cycles. Defaults to false.
+        insp_hold_length : real
+            Maximum time in seconds from inspiration until an expiration is encountered, after which the breath is terminated. Defaults to 0.5
+        exp_hold_length : real
+            Maximum expiratory hold length between breaths to be considered double cycling. Defaults to 0.05s
         
-        :returns: None
-        :rtype: None
+        Returns
+        -------
+        None
         """
         self.config["correction_window"] = correction_window
         self.flow_unit_converter = flow_unit_converter
@@ -106,8 +109,7 @@ class GeneralPipeline:
         self.config["peep"] = peep
         self.config["flow_thresh"] = flow_unit_converter(flow_thresh)
         self.config["f_base"] = f_base
-        self.config["w_len"] = w_len
-        self.config["t_len"] = 1 / freq * w_len
+        self.config["t_len"] = t_len
         self.config["leak_perc_thresh"] = leak_perc_thresh
         self.config["permit_double_cycling"] = permit_double_cycling
         self.config["insp_hold_length"] = insp_hold_length
@@ -116,15 +118,19 @@ class GeneralPipeline:
         self.configured = True
         
     def process(self, log=True, output_files=True):
-        """Processes the data after configuration and loading of data
+        """
+        Processes the data after configuration and loading of data
         
-        :param log: Flag for whether to output a log file
-        :type log: boolean
-        :param output_files: Flag for whether to output result files
-        :type output_files: boolean
+        Parameters
+        ----------
+        log : boolean, optional
+            Flag to decide whether to create output logs for the analysis. Defaults to True
+        output_files : boolean, optional
+            Flag to decide whether to create output files. Defaults to True
         
-        :returns: None
-        :rtype: None
+        Returns
+        -------
+        None
         """
         if not self.configured:
             print("Please configure the pipeline first")
@@ -137,7 +143,7 @@ class GeneralPipeline:
         self.mapper.configure(p_base=self.config["peep"],f_base=self.config["f_base"], 
                               f_thresh=self.config["flow_thresh"],freq=self.config["freq"],
                               t_len=self.config["t_len"])
-        self.labeller.configure(w_len=self.config["w_len"],freq=self.config["freq"],
+        self.labeller.configure(freq=self.config["freq"],
                                 hold_length=self.config["insp_hold_length"],
                                 leak_perc_thresh=self.config["leak_perc_thresh"],
                                 permit_double_cycling=self.config["permit_double_cycling"],
@@ -149,8 +155,14 @@ class GeneralPipeline:
         self.config["time_elapsed"] = str(self.config["processing_end_time"] - self.config["processing_start_time"])
         stem = ".".join(self.config["input_file"].split(".")[:-1])
         if output_files:
-            self.labeller.get_breaths_raw().to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)
-            self.labeller.get_breaths().to_csv(stem + "_predicted_Breaths_ms.csv", index=False)
+            breaths_raw = self.labeller.get_breaths_raw()
+            breaths_raw["max_expiratory_flow"] = breaths_raw["max_expiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths_raw["max_inspiratory_flow"] = breaths_raw["max_inspiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths_raw.to_csv(stem + "_predicted_Breaths_Raw.csv", index=False)
+            breaths = self.labeller.get_breaths()
+            breaths["max_expiratory_flow"] = breaths["max_expiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths["max_inspiratory_flow"] = breaths["max_inspiratory_flow"].apply(lambda x : x / self.flow_unit_converter(1))
+            breaths.to_csv(stem + "_predicted_Breaths_ms.csv", index=False)
             self.mapper.get_labels().to_csv(stem + "_predicted_Pressure_And_Flow_States.csv", index=False)
             self.labeller.get_breath_annotations(self.data.shape[0]).to_csv(stem + "_predicted_Breaths_Annotations.csv", index=False)
             self.config["output_files"] = [stem + "_predicted_Breaths_Raw.csv",

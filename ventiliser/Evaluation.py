@@ -13,7 +13,8 @@ import random
 from ventiliser.BreathVariables import BreathVariables
 
 class Evaluation:
-    """Class to help visualise and evaluate breaths extracted from a record.
+    """
+    Class to help visualise and evaluate breaths extracted from a record.
     
     Attributes
     ----------
@@ -24,45 +25,39 @@ class Evaluation:
     breaths : Array like of BreathVariables
         Breaths as calculating using mapper and phaselabeller
     freq : real
-        Frequency in Hz of the recording samplign rate
+        Frequency in Hz of the recording sampling rate
         
-    Methods
-    -------
-    load_breaths_from_csv(path)
-        Static method to return a list of BreathVariables objects from a csv file
-    compare(labels, breath_attr)
-        For each breath in the evaluation object, find the label with the closest index according to the specified attribute of a BreathVariables object
-    get_comparison_stats(labels, breath_attr)
-        A dictionary containing total number of breaths, number of matched breaths, total number of labels, number of matched labels, mean delta of all matches, std delta of all matches
-    plot_breath(index, attrs=[], p_y="Pressure", f_y="Flow", v_y="Volume", show=True)
-        Plots the pressure, flow, and calculated volume of a given breath. Provide a list of attribute names to specify which attributes to plot on the graphs
-    plot_pv_loop(index, p_label="Pressure", v_label="Volume", show=True)
-        Plots the pressure volume loop for a given breath
-    plot_breaths_flow_phases(self, attrs=["inspiration_initiation_length", "peak_inspiratory_flow_length", "inspiration_termination_length",
-                                        "inspiratory_hold_length", "expiration_initiation_length", "peak_expiratory_flow_length",
-                                        "expiration_termination_length","expiratory_hold_length"])
-        Plots all the breaths in the evaluation object ordered from shortest to longest and with the attributes specified in attrs as a stacked bar graph
     """
     @staticmethod
     def load_breaths_from_csv(path):
-        """Utility method to load a csv file output from PhaseLabeller.get_breaths_raw to a list of BreathVariables
+        """
+        Utility method to load a csv file output from PhaseLabeller.get_breaths_raw to a list of BreathVariables
         
-        :param path: Path to the raw breaths file
-        :type path: string
-        :returns: A list of BreathVariables from csv file
-        :rtype: Array like of BreathVariables
+        Parameters
+        ----------
+        path : string
+            Path to the raw breaths file
+        
+        Returns
+        -------
+        array like of BreathVariables objects
         """
         csv = pd.read_csv(path)
         breaths = csv.apply(Evaluation.__breathvariables_from_row, axis=1)
         return breaths
     @staticmethod
     def __breathvariables_from_row(x):
-        """Helper method to apply on pandas dataframe
+        """
+        Helper method to apply on pandas dataframe
         
-        :param x: A row from a pandas dataframe containing breaths
-        :type x: Pandas series
-        :returns: BreathVariables object containing the information from the row
-        :rtype: BreathVariables object
+        Parameters
+        ----------
+        x : Pandas Series
+            A row from a pandas dataframe containing breaths
+        
+        Returns
+        -------
+        BreathVariables object
         """
         output = BreathVariables()
         for attr in x.index:
@@ -70,16 +65,23 @@ class Evaluation:
         return output
     
     def __init__(self, pressures, flows, breaths, freq):
-        """Initialises the evaluation object with the data, predicted breaths, and frequency of the record
+        """
+        Initialises the evaluation object with the data, predicted breaths, and frequency of the record
         
-        :param pressures: Pressure datapoints for the record
-        :type pressures: Array like of real
-        :param flows: Flow datapoints for the record
-        :type flows: Array like of real
-        :param breaths: Predicted breaths obtained from PhaseLabeller or loaded from csv
-        :type breaths: Array like of BreathVariables
-        :param freq: Frequency of the record
-        :type freq: real
+        Parameters
+        ----------
+        pressures : Array like of real
+            Pressure data points for a record
+        flows : Array like of real
+            Flow data points for a record
+        breaths : Array like of BreathVariables
+            Breaths as calculating using mapper and phaselabeller
+        freq : real
+            Frequency in Hz of the recording sampling rate
+        
+        Returns
+        -------
+        None
         """
         
         self.pressures = np.array(pressures)
@@ -88,14 +90,20 @@ class Evaluation:
         self.freq = freq
     
     def compare(self, labels, breath_attr):
-        """Compares an attribute from the currently loaded breaths with a list of values. Identifies the label which is the closest match to each breath.
+        """
+        Compares an attribute from the currently loaded breaths with a list of values. Identifies the label which is the closest match to each breath.
         
-        :param labels: A list of indices that you wish to compare with the currently loaded breaths
-        :type labels: Array like of integer
-        :param breath_attr: A BreathVariables attribute you wish to perform the comparison on
-        :type breath_attr: string
-        :returns: A dataframe containing the closest matching breath to the given labels based on the attribute along with the difference
-        :rtype: Pandas dataframe
+        Parameters
+        ----------
+        labels : array like of int
+            A list of indices that you wish to compare with the currently loaded breaths
+        breath_attr : string
+            A BreathVariables attribute you wish to perform the comparison on
+        
+        Returns
+        -------
+        Pandas Dataframe
+            A dataframe containing the closest matching breath to the given labels based on the attribute along with the difference
         """
         if self.breaths is None:
             print("No breaths to compare to")
@@ -109,14 +117,20 @@ class Evaluation:
         return pd.DataFrame(output)
     
     def get_comparison_stats(self, labels, breath_attr):
-        """Compares labels against an attribute of the loaded breaths. If multiple breaths map to the same label, the one with the smallest delta is kept and the remaining considered false positives.
+        """
+        Compares labels against an attribute of the loaded breaths. If multiple breaths map to the same label, the one with the smallest delta is kept and the remaining considered false positives.
         
-        :param labels: A list of indices that you wish to compare with the currently loaded breaths
-        :type labels: Array like of integer
-        :param breath_attr: A BreathVariables attribute you wish to perform the comparison on
-        :type breath_attr: string
-        :returns: A dictionary containing total number of breaths, number of matched breaths, total number of labels, number of matched labels, mean delta of all matches, std delta of all matches
-        :rtype: dict
+        Parameters
+        ----------
+        labels : array like of int
+            A list of indices that you wish to compare with the currently loaded breaths
+        breath_attr : string
+            A BreathVariables attribute you wish to perform the comparison on
+        
+        Returns
+        -------
+        dict
+            A dictionary containing total number of breaths, number of matched breaths, total number of labels, number of matched labels, mean delta of all matches, std delta of all matches
         """
         comparison = self.compare(labels, breath_attr)
         mapped_labels = comparison["label_index"].unique()
@@ -132,20 +146,27 @@ class Evaluation:
                   "delta_std" : np.std(matches)}
         
     def plot_breath(self, index, attrs=[], p_y="Pressure", f_y="Flow", v_y="Volume", show=True):
-        """Plots the pressure, volume and flow of a breath and allows labelling of key points
+        """
+        Plots the pressure, volume and flow of a breath and allows labelling of key points
         
-        :param index: The index of the breath you wish to plot
-        :type index: integer
-        :param attrs: List of attributes that you wish to annotate onto the breath (see BreathVariables for available attributes)
-        :type attrs: Array like of string
-        :param p_y: Label for pressure plot y axis
-        :type p_y: string
-        :param f_y: Label for flow plot y axis
-        :type f_y: string
-        :param v_y: Label for volume plot y axis
-        :type v_y: string
-        :param show: Decide whether to show the plot or leave it so the user can add more to it
-        :type show: boolean
+        Parameters
+        ----------
+        index : int
+            Index of the breath you wish to plot
+        attrs : array like of string, optional
+            List of attributes you wish to annotate onto the breath (See BreathVariables for available attributes). Defaults to empty list
+        p_y : string, optional
+            Label for pressure plot y axis. Defaults to 'Pressure'.
+        f_y : string, optional
+            Label for flow plot y axis. Defaults to 'Flow'
+        v_y : string, optional
+            Label for volume plot y axis. Defaults to 'Volume'
+        show : boolean, optional
+            Flag to decide whether to show the plot or leave it so the user can add more to it. Defaults to True
+        
+        Returns
+        -------
+        None
         """
         if self.breaths is None:
             print("No breaths loaded")
@@ -192,16 +213,23 @@ class Evaluation:
             plt.show()
     
     def plot_pv_loop(self, index, p_label="Pressure", v_label="Volume", show=True):
-        """Plots the pressure-volume loop of the breath at index
+        """
+        Plots the pressure-volume loop of the breath at index
         
-        :param index: The index of the breath you wish to plot
-        :type index: integer
-        :param p_label: The label for the pressure axis
-        :type p_label: string
-        :param v_label: The label for the volume axis
-        :type v_label: string
-        :param show: Decide whether to show the plot or leave it so the user can add more to it
-        :type show: boolean
+        Parameters
+        ----------
+        index : int
+            The index of the breath you wish to plot
+        p_label : string, optional
+            The label for the pressure axis. Defaults to 'Pressure'
+        v_label : string, optional
+            The label for the volume axis. Defaults to 'Volume'
+        show : boolean, optional
+            Flag for deciding whether to show the plot or leave it so the user can add more to it. Defaults to True
+        
+        Returns
+        -------
+        None
         """
         if self.breaths is None:
             print("No breaths loaded")
@@ -221,6 +249,18 @@ class Evaluation:
                                  attrs=["inspiration_initiation_length", "peak_inspiratory_flow_length", "inspiration_termination_length",
                                         "inspiratory_hold_length", "expiration_initiation_length", "peak_expiratory_flow_length",
                                         "expiration_termination_length","expiratory_hold_length"]):
+        """
+        Plots a stacked barplot of each breath where the stack is the length of each phase of the breath
+        
+        Parameters
+        ----------
+        attrs : array like of string, optional
+            List of breath phases you wish to plot out. Defaults to all breath phases (see BreathVariables for more information)
+        
+        Returns
+        -------
+        None
+        """
         df = pd.DataFrame([vars(x) for x in self.breaths])
         order = np.argsort(np.array(df["breath_end"] - df["breath_start"]))
         df = df.iloc[order,:]
