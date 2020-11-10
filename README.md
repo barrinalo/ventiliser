@@ -30,6 +30,14 @@ pipeline.mapper.f_labels
 
 Please view the docs for more detailed information on optional parameters.
 
+### Contact
+
+For questions please email
+
+gbelteki@aol.com (Dr. Gusztav Belteki)
+
+dtwc3@cam.ac.uk (David Chong)
+
 ### License
 
 Copyright (c) 2020 David Chong Tian Wei
