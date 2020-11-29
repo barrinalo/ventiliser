@@ -40,7 +40,7 @@ dtwc3@cam.ac.uk (David Chong)
 
 ### License
 
-Copyright (c) 2020 David Chong Tian Wei
+Copyright (c) 2020 David Chong Tian Wei, Gusztav Belteki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
