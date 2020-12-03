@@ -12,7 +12,7 @@ ventiliser/PressureStates.py
 ventiliser/StateMapper.py
 ventiliser/__init__.py
 ventiliser/preprocess.py
-ventiliser.egg-info/PKG-INFO
-ventiliser.egg-info/SOURCES.txt
-ventiliser.egg-info/dependency_links.txt
-ventiliser.egg-info/top_level.txt
+ventiliser_David_Chong.egg-info/PKG-INFO
+ventiliser_David_Chong.egg-info/SOURCES.txt
+ventiliser_David_Chong.egg-info/dependency_links.txt
+ventiliser_David_Chong.egg-info/top_level.txt

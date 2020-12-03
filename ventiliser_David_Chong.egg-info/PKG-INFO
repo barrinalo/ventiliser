@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
-Name: ventiliser
+Name: ventiliser-David-Chong
 Version: 0.0.1
 Summary: Provides a pipeline for segmenting pressure and flow data from ventilators into individual breaths with an attempt to identify sub-phases. Developed on data from neonates ventilated on Draeger ventilators
 Home-page: https://github.com/barrinalo/ventiliser
@@ -71,7 +71,6 @@ Description: ### Ventiliser
 Platform: UNKNOWN
 Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Healthcare Industry
-Classifier: Topic :: Scientific/Engineering :: Medical Science Apps
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
