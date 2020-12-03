@@ -71,7 +71,6 @@ Description: ### Ventiliser
 Platform: UNKNOWN
 Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Healthcare Industry
-Classifier: Topic :: Scientific/Engineering :: Medical Science Apps
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
