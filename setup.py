@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/barrinalo/ventiliser",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Healthcare Industry",
         "Topic :: Scientific/Engineering :: Medical Science Apps",
         "Programming Language :: Python :: 3",
