@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="ventiliser-David_Chong",
+    name="ventiliser",
     version="0.0.1",
     author="David Chong Tian Wei",
     author_email="dtwc3@cam.ac.uk",
