@@ -2,7 +2,10 @@
 
 Ventiliser is a tool for segmenting pressure and flow waveforms from ventilators into breaths. It also attempts to find the position of breath sub-phases. Ventiliser was developed on data from neonates ventialted on Draeger ventilators.
 
+Please see the accompanying paper ["Computational analysis of neonatal ventilator waveforms and loops"](https://doi.org/10.1038/s41390-020-01301-9) for details
+
 ### Installation
+
 Ventiliser depends on numpy, pandas, scipy, atpbar, and PyQT5. Installation via pip is recommended.
 
 ```python

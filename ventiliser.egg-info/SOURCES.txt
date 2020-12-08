@@ -15,4 +15,5 @@ ventiliser/preprocess.py
 ventiliser.egg-info/PKG-INFO
 ventiliser.egg-info/SOURCES.txt
 ventiliser.egg-info/dependency_links.txt
+ventiliser.egg-info/requires.txt
 ventiliser.egg-info/top_level.txt
