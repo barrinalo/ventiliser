@@ -186,7 +186,10 @@ class Evaluation:
         plt.ylim(bottom=0)
         plt.ylabel(p_y)
         for attr in attrs:
-            xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+            if getattr(self.breaths[index], attr) - self.breaths[index].breath_start >= len(x_values):
+                xpos = x_values[len(x_values)-1]
+            else:
+                xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
             plt.axvline(x=xpos, color="k", linestyle="--")
             plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
         # Plot flows
@@ -195,7 +198,10 @@ class Evaluation:
         plt.axhline(y=0, color="k", linestyle="--")
         plt.ylabel(f_y)
         for attr in attrs:
-            xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+            if getattr(self.breaths[index], attr) - self.breaths[index].breath_start >= len(x_values):
+                xpos = x_values[len(x_values)-1]
+            else:
+                xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
             plt.axvline(x=xpos, color="k", linestyle="--")
             plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
         # Plot volume
@@ -204,7 +210,10 @@ class Evaluation:
         plt.xlabel("Time [s]")
         plt.ylabel(v_y)
         for attr in attrs:
-            xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
+            if getattr(self.breaths[index], attr) - self.breaths[index].breath_start >= len(x_values):
+                xpos = x_values[len(x_values)-1]
+            else:
+                xpos = x_values[getattr(self.breaths[index], attr) - self.breaths[index].breath_start]
             plt.axvline(x=xpos, color="k", linestyle="--")
             plt.text(xpos, random.uniform(plt.ylim()[0] * 0.9, plt.ylim()[1] * 0.9), attr)
         

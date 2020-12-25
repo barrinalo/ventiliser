@@ -69,8 +69,8 @@ class GeneralPipeline:
         
     def configure(self,correction_window=None, flow_unit_converter=lambda x:x,
                   freq=100, peep=5.5, flow_thresh=0.1, t_len=0.03, f_base=0,
-                  leak_perc_thresh=0.66, permit_double_cycling=False,
-                  insp_hold_length=0.5, exp_hold_length=0.05):
+                  leak_perc_thresh=0.66, insp_hold_length=0.5,
+                  assissted_breath_correlation_threshold=0.2):
         """ 
         Overall coniguration for the pipeline. Please call before process and load data
         
@@ -111,9 +111,8 @@ class GeneralPipeline:
         self.config["f_base"] = f_base
         self.config["t_len"] = t_len
         self.config["leak_perc_thresh"] = leak_perc_thresh
-        self.config["permit_double_cycling"] = permit_double_cycling
+        self.config["assissted_breath_correlation_threshold"] = assissted_breath_correlation_threshold
         self.config["insp_hold_length"] = insp_hold_length
-        self.config["exp_hold_length"] = exp_hold_length
         
         self.configured = True
         
@@ -146,8 +145,7 @@ class GeneralPipeline:
         self.labeller.configure(freq=self.config["freq"],
                                 hold_length=self.config["insp_hold_length"],
                                 leak_perc_thresh=self.config["leak_perc_thresh"],
-                                permit_double_cycling=self.config["permit_double_cycling"],
-                                exp_hold_len=self.config["exp_hold_length"])
+                                assissted_breath_correlation_threshold=self.config["assissted_breath_correlation_threshold"])
         self.mapper.process(self.data.iloc[:,1], self.data.iloc[:,2])
         self.labeller.process(self.mapper.p_labels, self.mapper.f_labels,
                               self.data.iloc[:,1], self.data.iloc[:,2])

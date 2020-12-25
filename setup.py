@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ventiliser",
-    version="1.0.0",
+    version="1.0.1",
     author="David Chong Tian Wei",
     author_email="dtwc3@cam.ac.uk",
     description="Provides a pipeline for segmenting pressure and flow data from ventilators into individual breaths with an attempt to identify sub-phases. Developed on data from neonates ventilated on Draeger ventilators",

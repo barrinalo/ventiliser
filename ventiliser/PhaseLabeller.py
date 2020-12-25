@@ -35,7 +35,7 @@ class PhaseLabeller:
     def __init__(self):
         self.configure()
     
-    def configure(self, freq=100, hold_length=0.5, leak_perc_thresh=0.66, exp_hold_len=0.05, permit_double_cycling = False):
+    def configure(self, freq=100, hold_length=0.5, leak_perc_thresh=0.66, assissted_breath_correlation_threshold=0.2):
         """ 
         Sets the constants for segmentation and post-processing
         
@@ -47,11 +47,8 @@ class PhaseLabeller:
             Threshold in seconds for the amount of time a breath can be in a no flow state before considered termintated. Defaults to 0.5s
         leak_perc_thresh : real, optional
             The proportion of leak permitted before breath is conidered physiologically implausible and to be flagged for merging in post processing. Defaults to 66%
-        exp_hold_len : real, optional
-            The time in seconds of the expiratory hold that must occur between breaths to deflag for merging in post-processing. Defaults to 0.05s
-        permit_double_cycling : boolean, optional
-            Decide whether to merge double cycles in post-processing based on exp_hold_len. Defaults to false.
-            
+        assissted_breath_correlation_threshold : real, optional
+            The correlation coefficient threshold in which a breath is considered to be ventilator assissted and hence wont be merged
         Returns
         -------
         None
@@ -60,8 +57,7 @@ class PhaseLabeller:
         self.freq = freq
         self.max_hold = math.ceil(freq * hold_length)
         self.leak_perc_thresh = leak_perc_thresh
-        self.exp_hold_len = math.ceil(freq * exp_hold_len)
-        self.permit_double_cycling = permit_double_cycling
+        self.assissted_breath_correlation_threshold = assissted_breath_correlation_threshold
     
     def process(self, p_labels, f_labels, pressures, flows, post_processing=True):
         """
@@ -252,8 +248,8 @@ class PhaseLabeller:
         
         Returns
         -------
-        (int, array like of PressureStates or FlowStates, array like of PressureStates or FlowStates)
-            Returns the index of the split, the states up to index, states from index to the end
+        (int, array like of PressureStates or FlowStates, array like of PressureStates or FlowStates, real)
+            Returns the index of the split, the states up to index, states from index to the end, total information after split
         """
         some_exists = False
         for target_class in target_classes:
@@ -261,14 +257,14 @@ class PhaseLabeller:
                 some_exists = True
                 break
         if not some_exists:
-            return (0, np.array([]), labels)
+            return (0, np.array([]), labels, -1)
         if len(labels) == 0:
-            return (0, np.array([]), labels)
+            return (0, np.array([]), labels, -1)
         elif len(labels) == 1:
             for target_class in target_classes:
                 if target_class in labels:
-                    return(1, labels, np.array([]))
-            return (0, np.array([]), labels)
+                    return(1, labels, np.array([]),0)
+            return (0, np.array([]), labels, -1)
         # Find p
         xlen = len(labels)
         forward = np.arange(1,xlen)
@@ -284,7 +280,7 @@ class PhaseLabeller:
         p2_prime = 1-p2
         inf += ((-p_prime * np.log(p_prime + 1E-7 )) * forward + (-p2_prime * np.log(p2_prime + 1E-7)) * backward) / xlen
         idx = np.argmin(inf) + 1
-        return (idx, labels[:idx], labels[idx:])
+        return (idx, labels[:idx], labels[idx:], inf[np.argmin(inf)])
        
     def __information_approach(self, p_labels, f_labels, breath):
         """
@@ -309,47 +305,47 @@ class PhaseLabeller:
         # Inspiration initiation at breath start by segmentation definition
         breath.inspiration_initiation_start = breath.breath_start
         # Find Peak inspiratory flow start by finding end of split
-        breath.peak_inspiratory_flow_start, _, labels = self.__maximise_information_gain(labels, [fs.inspiration_initiation])
+        breath.peak_inspiratory_flow_start, _, labels, _ = self.__maximise_information_gain(labels, [fs.inspiration_initiation])
         breath.peak_inspiratory_flow_start += breath.breath_start
         # Find Inspiration termination start by finding end of split
-        breath.inspiration_termination_start, _, labels = self.__maximise_information_gain(labels, [fs.peak_inspiratory_flow])
+        breath.inspiration_termination_start, _, labels, _ = self.__maximise_information_gain(labels, [fs.peak_inspiratory_flow])
         breath.inspiration_termination_start += breath.peak_inspiratory_flow_start
         # Find Inspiratory Hold start by finding end of split
-        breath.inspiratory_hold_start, _, labels = self.__maximise_information_gain(labels, [fs.inspiration_termination])
+        breath.inspiratory_hold_start, _, labels, _ = self.__maximise_information_gain(labels, [fs.inspiration_termination])
         breath.inspiratory_hold_start += breath.inspiration_termination_start
         # Find Peak expiratory flow start by finding end of split
-        breath.peak_expiratory_flow_start, _, labels = self.__maximise_information_gain(labels, [fs.expiration_initiation])
+        breath.peak_expiratory_flow_start, _, labels, _ = self.__maximise_information_gain(labels, [fs.expiration_initiation])
         breath.peak_expiratory_flow_start += breath.inspiratory_hold_start
         # Find Expiratory hold start by finding end of split
-        no_flow, _, labels = self.__maximise_information_gain(labels, [fs.no_flow])
+        no_flow, _, labels, _ = self.__maximise_information_gain(labels, [fs.no_flow])
         if no_flow == 0:
             breath.expiratory_hold_start = breath.breath_end
         else:
             breath.expiratory_hold_start = breath.peak_expiratory_flow_start + no_flow        
         # Find Expiration Termination Start by finding end of split
         templabels = f_labels[breath.peak_expiratory_flow_start - breath.breath_start : breath.expiratory_hold_start - breath.breath_start]
-        breath.expiration_termination_start, _, labels = self.__maximise_information_gain(templabels, [fs.peak_expiratory_flow])
+        breath.expiration_termination_start, _, labels, _ = self.__maximise_information_gain(templabels, [fs.peak_expiratory_flow])
         breath.expiration_termination_start += breath.peak_expiratory_flow_start
         # Find expiration initiation start by finding end of split
         templabels = f_labels[breath.inspiratory_hold_start - breath.breath_start : breath.peak_expiratory_flow_start - breath.breath_start]
-        breath.expiration_initiation_start, _, labels = self.__maximise_information_gain(templabels, [fs.no_flow])
+        breath.expiration_initiation_start, _, labels, _ = self.__maximise_information_gain(templabels, [fs.no_flow])
         breath.expiration_initiation_start += breath.inspiratory_hold_start
         
         labels = p_labels
         # Find pip start by finding end of split
-        breath.pip_start, _, labels = self.__maximise_information_gain(labels, [ps.pressure_rise])
+        breath.pip_start, _, labels, _ = self.__maximise_information_gain(labels, [ps.pressure_rise])
         breath.pip_start += breath.breath_start
         
         # Find pressure drop start by finding end of split
-        breath.pressure_drop_start, _, labels = self.__maximise_information_gain(labels, [ps.pip])
+        breath.pressure_drop_start, _, labels, _ = self.__maximise_information_gain(labels, [ps.pip])
         breath.pressure_drop_start += breath.pip_start
         
         # Find peep start by finding start of split
-        breath.peep_start, _, labels = self.__maximise_information_gain(labels, [ps.pressure_drop])
+        breath.peep_start, _, labels, _ = self.__maximise_information_gain(labels, [ps.pressure_drop])
         breath.peep_start += breath.pressure_drop_start
         
         # Find pressure rise start by finding start of split
-        breath.pressure_rise_start, _, labels = self.__maximise_information_gain(p_labels[:breath.pip_start - breath.breath_start], [ps.peep])
+        breath.pressure_rise_start, _, labels, _ = self.__maximise_information_gain(p_labels[:breath.pip_start - breath.breath_start], [ps.peep, ps.pressure_drop])
         breath.pressure_rise_start += breath.breath_start
     
     def __calculate_features(self, breath, pressures, flows):
@@ -406,9 +402,9 @@ class PhaseLabeller:
         
         # Correlation
         breath.pressure_flow_correlation = np.corrcoef(p,f)[0,1]
-    
+        
     def __post_process(self, p_labels, f_labels, pressures, flows):
-        """ 
+        """
         Performs merging of adjacent breaths dependent on whether inspiration and expiration volumes match
         
         Parameters
@@ -426,63 +422,58 @@ class PhaseLabeller:
         -------
         None
         """
-        merged_breaths = [self.breaths[0]]
-        begin_merge = False
-        insp_sum = 0
-        exp_sum = 0
-        error_start = 0
-        for i in atpbar(range(1,len(self.breaths)), name="Post-processing"):
-            if not begin_merge:
-                breath_leak_perc = (self.breaths[i].inspiratory_volume - self.breaths[i].expiratory_volume) / self.breaths[i].inspiratory_volume
-                if abs(breath_leak_perc) > self.leak_perc_thresh:
-                    if breath_leak_perc < 0 and self.breaths[i-1].expiratory_hold_length <= self.exp_hold_len:
-                        error_start = i - 1
-                        merged_breaths.pop()
-                        begin_merge = True
-                        insp_sum += self.breaths[i-1].inspiratory_volume + self.breaths[i].inspiratory_volume
-                        exp_sum += self.breaths[i-1].expiratory_volume + self.breaths[i].expiratory_volume
-                    elif breath_leak_perc > 0 and self.breaths[i-1].expiratory_hold_length <= self.exp_hold_len:
-                        begin_merge = True
-                        error_start = i
-                        insp_sum += self.breaths[i].inspiratory_volume
-                        exp_sum += self.breaths[i].expiratory_volume
+        merged_breaths = []
+        i = 0
+        print("Post processing...")
+        while i < len(self.breaths):
+            breath_leak_perc = (self.breaths[i].inspiratory_volume - self.breaths[i].expiratory_volume) / self.breaths[i].inspiratory_volume
+            if abs(breath_leak_perc) > self.leak_perc_thresh:
+                if len(merged_breaths) > 0:
+                    _, _, _, inf_prev = self.__maximise_information_gain(f_labels[merged_breaths[-1].breath_start:self.breaths[i].breath_end],[fs.inspiration_initiation,fs.peak_inspiratory_flow,fs.inspiration_termination])
+                else:
+                    inf_prev = -1
+                if i < len(self.breaths)-1:
+                    _, _, _, inf_post = self.__maximise_information_gain(f_labels[self.breaths[i].breath_start:self.breaths[i+1].breath_end],[fs.inspiration_initiation,fs.peak_inspiratory_flow,fs.inspiration_termination])
+                else:
+                    inf_post = -1
+                if inf_prev >= 0 and inf_post >= 0:
+                    if inf_prev <= inf_post and self.breaths[i].pressure_flow_correlation < self.assissted_breath_correlation_threshold:
+                        merged_breath = BreathVariables()
+                        merged_breath.breath_start = merged_breaths[-1].breath_start
+                        merged_breath.breath_end = self.breaths[i].breath_end
+                        self.__information_approach(p_labels, f_labels, merged_breath)
+                        self.__calculate_features(merged_breath, pressures, flows)
+                        merged_breaths[-1] = merged_breath
+                    elif inf_post < inf_prev and self.breaths[i+1].pressure_flow_correlation < self.assissted_breath_correlation_threshold:
+                        merged_breath = BreathVariables()
+                        merged_breath.breath_start = self.breaths[i].breath_start
+                        merged_breath.breath_end = self.breaths[i+1].breath_end
+                        self.__information_approach(p_labels, f_labels, merged_breath)
+                        self.__calculate_features(merged_breath, pressures, flows)
+                        merged_breaths += [merged_breath]
+                        i += 1
                     else:
                         merged_breaths += [self.breaths[i]]
-                else:
-                    merged_breaths += [self.breaths[i]]
-            else:
-                if ((abs(insp_sum - exp_sum)/insp_sum < self.leak_perc_thresh or self.breaths[i-1].expiratory_hold_length > self.exp_hold_len) and error_start != i-1) or (self.breaths[i].pressure_flow_correlation > 0.2 and not self.permit_double_cycling):
-                    # Begin to merge breaths
-                    begin_merge = False
-                    insp_sum = 0
-                    exp_sum = 0
+                elif inf_prev >=0 and self.breaths[i].pressure_flow_correlation < self.assissted_breath_correlation_threshold:
                     merged_breath = BreathVariables()
-                    merged_breath.breath_start = self.breaths[error_start].breath_start
-                    merged_breath.breath_end = self.breaths[i-1].breath_end
+                    merged_breath.breath_start = merged_breaths[-1].breath_start
+                    merged_breath.breath_end = self.breaths[i].breath_end
+                    self.__information_approach(p_labels, f_labels, merged_breath)
+                    self.__calculate_features(merged_breath, pressures, flows)
+                    merged_breaths[-1] = merged_breath
+                elif inf_post >= 0 and self.breaths[i+1].pressure_flow_correlation < self.assissted_breath_correlation_threshold:
+                    merged_breath = BreathVariables()
+                    merged_breath.breath_start = self.breaths[i].breath_start
+                    merged_breath.breath_end = self.breaths[i+1].breath_end
                     self.__information_approach(p_labels, f_labels, merged_breath)
                     self.__calculate_features(merged_breath, pressures, flows)
                     merged_breaths += [merged_breath]
-                    # Check if current breath needs to be merged
-                    breath_leak_perc = (self.breaths[i].inspiratory_volume - self.breaths[i].expiratory_volume) / self.breaths[i].inspiratory_volume
-                    if abs(breath_leak_perc) > self.leak_perc_thresh:
-                        if breath_leak_perc < 0 and self.breaths[i].expiratory_hold_length <= self.exp_hold_len:
-                            merged_breaths.pop()
-                            begin_merge = True
-                            insp_sum += self.breaths[i-1].inspiratory_volume + self.breaths[i].inspiratory_volume
-                            exp_sum += self.breaths[i-1].expiratory_volume + self.breaths[i].expiratory_volume
-                        elif breath_leak_perc > 0 and self.breaths[i].expiratory_hold_length <= self.exp_hold_len:
-                            begin_merge = True
-                            error_start = i
-                            insp_sum += self.breaths[i].inspiratory_volume
-                            exp_sum += self.breaths[i].expiratory_volume
-                        else:
-                            merged_breaths += [self.breaths[i]]
-                    else:
-                        merged_breaths += [self.breaths[i]]
+                    i += 1
                 else:
-                    insp_sum += self.breaths[i].inspiratory_volume
-                    exp_sum += self.breaths[i].expiratory_volume
-        
+                    merged_breaths += [self.breaths[i]]
+            else:
+                merged_breaths += [self.breaths[i]]
+            i += 1
         self.breaths = merged_breaths
         for i in atpbar(range(len(self.breaths)), name="Re-numbering breaths"):
             self.breaths[i].breath_number = i+1
