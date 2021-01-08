@@ -5,24 +5,245 @@ Created on Sun May  3 12:31:52 2020
 
 @author: David Chong Tian Wei
 """
-from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QDialog, QDialogButtonBox, QAction, QTableView, QFileDialog, QLabel, QLineEdit, QHBoxLayout, QComboBox, QWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QDialog, QDialogButtonBox, QAction, QTableView, QFileDialog, QLabel, QLineEdit, QHBoxLayout, QComboBox, QWidget, QPushButton
 from PyQt5.QtCore import Qt, QAbstractTableModel
 import pyqtgraph as pg
-import pyqtgraph.exporters
 import os
 import pandas as pd
 import numpy as np
 from ventiliser.FlowStates import FlowStates as fs
 from ventiliser.PressureStates import PressureStates as ps
 
-class GUI:
+class ChangePointAnnotator:
     def __init__(self):
         self.app = QApplication([])
-        self.root = MainWindow()
+        self.root = ChangePointAnnotatorWindow()
         self.root.show()
         self.app.exec()
 
-class MainWindow(QMainWindow):
+class BreathAnnotator:
+    def __init__(self):
+        self.app = QApplication([])
+        self.root = BreathAnnotatorWindow()
+        self.root.show()
+        self.app.exec()
+
+class BreathAnnotatorWindow(QMainWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle("Breath Annotation Tool")
+        self.resize(1280,720)
+        pg.setConfigOption('foreground', "k")
+        pg.setConfigOption('background', 'w')
+        
+        self.current_breath = 0
+        
+        # Label choices
+        self.info_layout = QVBoxLayout()
+        self.info_layout.setAlignment(Qt.AlignTop)
+        self.cur_breath_display = QLabel("Current breath is {}".format(self.current_breath))
+        self.next_breath = QPushButton("Next Breath")
+        self.next_breath.clicked.connect(self.__next_breath)
+        self.prev_breath = QPushButton("Previous Breath")
+        self.prev_breath.clicked.connect(self.__prev_breath)
+        self.info_layout.addWidget(self.cur_breath_display)
+        self.info_layout.addWidget(self.next_breath)
+        self.info_layout.addWidget(self.prev_breath)
+        self.info_layout.addWidget(QLabel("Breath Label Options"))
+        
+        # Graphing
+        self.display = pg.GraphicsView()
+        self.display_layout = pg.GraphicsLayout()
+        self.display.setCentralItem(self.display_layout)
+        self.pressure_plot = self.display_layout.addPlot(title="Pressure waveform")
+        self.pressure_plot.showGrid(x=True, y=True)
+        self.pressure_plot.setMenuEnabled(False)
+        self.pressure_plot.setLabel("left", "Pressure")
+        self.pressure_plot.setLabel("bottom", "Time")
+        self.pressure_plot.setClipToView(True)
+        self.display_layout.nextRow()
+        self.flow_plot = self.display_layout.addPlot(title="Flow waveform")
+        self.flow_plot.showGrid(x=True, y=True)
+        self.flow_plot.setMenuEnabled(False)
+        self.flow_plot.setLabel("left", "Flow")
+        self.flow_plot.setLabel("bottom", "Time")
+        self.flow_plot.setClipToView(True)
+        self.flow_plot.getViewBox().setXLink(self.pressure_plot)
+        self.pressure_pen = pg.mkPen(color="r", width=2)
+        self.flow_pen = pg.mkPen(color="b", width=2)
+        
+        
+        widget = QWidget()
+        layout = QHBoxLayout()
+        layout.addLayout(self.info_layout)
+        layout.addWidget(self.display)
+        widget.setLayout(layout)
+        
+        self.setCentralWidget(widget)
+        
+        # File IO
+        self.File = self.menuBar().addMenu("&File")
+        load_breaths = QAction("Load Sample", self)
+        load_breaths.triggered.connect(self.__load_sample)
+        self.File.addAction(load_breaths)
+    
+    def __next_breath(self):
+        if self.current_breath < self.nbreaths-1:
+            self.current_breath += 1
+            self.breath_start = self.breaths["breath_start"].iat[self.current_breath]
+            self.breath_end = self.breaths["breath_end"].iat[self.current_breath]
+            self.pressure_plot.clear()
+            self.pressure_plot.plot(np.linspace(0,self.data.iat[self.breath_end,0]-self.data.iat[self.breath_start,0], self.breath_end - self.breath_start), self.data.iloc[self.breath_start:self.breath_end,1].values, pen=self.pressure_pen)
+            self.flow_plot.clear()
+            self.flow_plot.plot(np.linspace(0,self.data.iat[self.breath_end,0]-self.data.iat[self.breath_start,0], self.breath_end - self.breath_start), self.data.iloc[self.breath_start:self.breath_end,2].values, pen=self.flow_pen)
+            self.cur_breath_display.setText("Current breath is {} of {}".format(self.current_breath+1,self.nbreaths))
+    
+    def __prev_breath(self):
+        if self.current_breath > 0:
+            self.current_breath -= 1
+            self.breath_start = self.breaths["breath_start"].iat[self.current_breath]
+            self.breath_end = self.breaths["breath_end"].iat[self.current_breath]
+            self.pressure_plot.clear()
+            self.pressure_plot.plot(np.linspace(0,self.data.iat[self.breath_end,0]-self.data.iat[self.breath_start,0], self.breath_end - self.breath_start), self.data.iloc[self.breath_start:self.breath_end,1].values, pen=self.pressure_pen)
+            self.flow_plot.clear()
+            self.flow_plot.plot(np.linspace(0,self.data.iat[self.breath_end,0]-self.data.iat[self.breath_start,0], self.breath_end - self.breath_start), self.data.iloc[self.breath_start:self.breath_end,2].values, pen=self.flow_pen)
+            self.cur_breath_display.setText("Current breath is {} of {}".format(self.current_breath+1,self.nbreaths))
+    
+    def __load_sample(self):
+        sample_settings = SampleSelectionDialog()
+        if sample_settings.exec():
+            p, f = os.path.split(sample_settings.waveformFileName)
+            if not os.path.isdir(os.path.join(p, "labeled_breaths")):
+                os.mkdir(os.path.join(p,"labeled_breaths"))
+            self.output_folder = os.path.join(p,"labeled_breaths")
+            self.data = pd.read_csv(sample_settings.waveformFileName, usecols=sample_settings.waveformColumns)
+            self.breaths = pd.read_csv(sample_settings.breathsFileName)
+            self.states = pd.read_csv(sample_settings.statesFileName)
+            self.nbreaths = sample_settings.nbreaths if sample_settings.nbreaths < self.breaths.shape[0] else self.breaths.shape[0]
+            self.labeled_breaths = pd.concat([self.breaths.iloc[:,15:].sample(n=self.nbreaths).reset_index(drop=True),pd.Series([None] * self.nbreaths, name="target")],axis=1)
+            f = open(sample_settings.labelsFileName, "r")
+            self.labels = f.read().split("\n")[:-1]
+            f.close()
+            for l in self.labels:
+                b = QPushButton(l)
+                b.clicked.connect(lambda : self.__label_breath(self.sender().text()))
+                self.info_layout.addWidget(b)
+            self.current_breath = 0
+            self.breath_start = self.breaths["breath_start"].iat[self.current_breath]
+            self.breath_end = self.breaths["breath_end"].iat[self.current_breath]
+            self.pressure_plot.setLabel("left", self.data.columns[1])
+            self.pressure_plot.setLabel("bottom", self.data.columns[0])
+            self.flow_plot.setLabel("left", self.data.columns[2])
+            self.flow_plot.setLabel("bottom", self.data.columns[0])
+            self.pressure_plot.clear()
+            self.pressure_plot.plot(np.linspace(0,self.data.iat[self.breath_end,0]-self.data.iat[self.breath_start,0], self.breath_end - self.breath_start), self.data.iloc[self.breath_start:self.breath_end,1].values, pen=self.pressure_pen)
+            self.flow_plot.clear()
+            self.flow_plot.plot(np.linspace(0,self.data.iat[self.breath_end,0]-self.data.iat[self.breath_start,0], self.breath_end - self.breath_start), self.data.iloc[self.breath_start:self.breath_end,2].values, pen=self.flow_pen)
+            self.cur_breath_display.setText("Current breath is {} of {}".format(self.current_breath+1,self.nbreaths))
+    
+    def __label_breath(self, label):
+        self.labeled_breaths["target"].iat[self.current_breath] = label
+        self.labeled_breaths.to_csv(os.path.join(self.output_folder,"index.csv"))
+        output_waveform = pd.concat([self.data.iloc[self.breath_start:self.breath_end,1:].reset_index(drop=True),self.states.iloc[self.breath_start:self.breath_end,:].reset_index(drop=True)],axis=1)
+        output_waveform.to_csv(os.path.join(self.output_folder, "{}.csv".format(self.current_breath)))
+        self.__next_breath()
+        if self.current_breath == self.nbreaths-1:
+            Popup("Alert","You have reached the end of all the breaths")
+        
+class SampleSelectionDialog(QDialog):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle("Load sample files")
+        self.resize(800,600)
+        
+        self.main_widget = QVBoxLayout()
+        # Get waveform file
+        self.waveformFile = QLabel("")
+        self.waveformButton = QPushButton("Load Waveform File")
+        self.waveformButton.clicked.connect(self.__select_waveform_file)
+        
+        # Get breaths file
+        self.breathsFile = QLabel("")
+        self.breathsButton = QPushButton("Load Breaths File")
+        self.breathsButton.clicked.connect(self.__select_breaths_file)
+        
+        # Get states file
+        self.statesFile = QLabel("")
+        self.statesButton = QPushButton("Load States File")
+        self.statesButton.clicked.connect(self.__select_states_file)
+        
+        # Get label file
+        self.labelsFile = QLabel("")
+        self.labelsButton = QPushButton("Load Labels")
+        self.labelsButton.clicked.connect(self.__select_labels_file)
+        
+        # Number of breaths to sample
+        self.nbreathsFile = QLabel("How many breaths would you like to label?")
+        self.nbreathsEdit = QLineEdit()
+        
+        # Accept reject
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self._accepted)
+        self.buttonBox.rejected.connect(self.reject)
+        
+        self.main_widget.addWidget(self.waveformFile)
+        self.main_widget.addWidget(self.waveformButton)
+        self.main_widget.addWidget(self.breathsFile)
+        self.main_widget.addWidget(self.breathsButton)
+        self.main_widget.addWidget(self.statesFile)
+        self.main_widget.addWidget(self.statesButton)
+        self.main_widget.addWidget(self.labelsFile)
+        self.main_widget.addWidget(self.labelsButton)
+        self.main_widget.addWidget(self.nbreathsFile)
+        self.main_widget.addWidget(self.nbreathsEdit)
+        self.main_widget.addWidget(self.buttonBox)
+        
+        self.setLayout(self.main_widget)
+        
+    def __select_waveform_file(self):
+        fname = QFileDialog.getOpenFileName(self, "Open File", os.getcwd(), "Tabular data (*.csv *.tsv *txt)")
+        if fname[0] != "":
+            data = pd.read_csv(fname[0], nrows=10)
+            column_selection = ColumnSelectionDialog(data)
+            if column_selection.exec():
+                self.waveformFile.setText(fname[0])
+                self.waveformFileName = fname[0]
+                self.waveformColumns = column_selection.selected_indices
+                
+    def __select_breaths_file(self):
+        fname = QFileDialog.getOpenFileName(self, "Open File", os.getcwd(), "Tabular data (*.csv *.tsv *txt)")
+        if fname[0] != "":
+            self.breathsFileName = fname[0]
+            self.breathsFile.setText(fname[0])
+            data = pd.read_csv(fname[0])
+            self.nbreathsFile.setText("There are {} breaths in this file. How many breaths would you like to label?".format(data.shape[0]))
+            
+    def __select_states_file(self):
+        fname = QFileDialog.getOpenFileName(self, "Open File", os.getcwd(), "Tabular data (*.csv *.tsv *txt)")
+        if fname[0] != "":
+            self.statesFileName = fname[0]
+            self.statesFile.setText(fname[0])
+    
+    def __select_labels_file(self):
+        fname = QFileDialog.getOpenFileName(self, "Open File", os.getcwd(), "Tabular data (*.csv *.tsv *txt)")
+        if fname[0] != "":
+            self.labelsFileName = fname[0]
+            self.labelsFile.setText(fname[0])
+            
+    def _accepted(self):
+        if self.waveformFileName is not None and self.breathsFileName is not None and self.statesFileName is not None and self.labelsFileName is not None:
+            if self.nbreathsEdit.text().isnumeric():
+                self.nbreaths = int(float(self.nbreathsEdit.text()))
+                if self.nbreaths > 0:
+                    self.accept()
+                else:
+                    Popup("Error", "Window length must be larger than 0")
+            else:
+                Popup("Error", "Window length must be numeric")
+        else:
+            Popup("Error", "Must specify all file inputs")
+                
+class ChangePointAnnotatorWindow(QMainWindow):
     pressure_options = [ps.peep.name, ps.pressure_rise.name, ps.pip.name, ps.pressure_drop.name]
     flow_options = [fs.no_flow.name, fs.inspiration_initiation.name, fs.peak_inspiratory_flow.name,
                     fs.inspiration_termination.name, fs.expiration_initiation.name, fs.peak_expiratory_flow.name,
@@ -43,9 +264,9 @@ class MainWindow(QMainWindow):
         # Label choices
         info_layout = QHBoxLayout()
         self.pressure_choice = QComboBox()
-        self.pressure_choice.addItems(MainWindow.pressure_options)
+        self.pressure_choice.addItems(ChangePointAnnotatorWindow.pressure_options)
         self.flow_choice = QComboBox()
-        self.flow_choice.addItems(MainWindow.flow_options)
+        self.flow_choice.addItems(ChangePointAnnotatorWindow.flow_options)
         info_layout.addWidget(QLabel("Pressure labels"), 1)
         info_layout.addWidget(self.pressure_choice, 2)
         info_layout.addWidget(QLabel("Flow labels"), 1)
@@ -236,7 +457,7 @@ class MainWindow(QMainWindow):
                 if xind in self.pressure_markers.keys():
                     self.pressure_plot.removeItem(self.pressure_markers[xind])
                     del(self.pressure_markers[xind])
-                self.pressure_markers[xind] = self.pressure_plot.addLine(x=self.data.iat[xind,0], pen=MainWindow.pressure_pens[self.pressure_choice.currentText()], label=self.pressure_choice.currentText(), labelOpts={"position" :(ps(self.pressure_labels[xind]).value+1)/5})
+                self.pressure_markers[xind] = self.pressure_plot.addLine(x=self.data.iat[xind,0], pen=ChangePointAnnotatorWindow.pressure_pens[self.pressure_choice.currentText()], label=self.pressure_choice.currentText(), labelOpts={"position" :(ps(self.pressure_labels[xind]).value+1)/5})
             
         elif self.flow_plot.getAxis("bottom") == event.currentItem:
             xpos = self.pressure_plot.getViewBox().mapSceneToView(event.scenePos()).x()
@@ -253,7 +474,7 @@ class MainWindow(QMainWindow):
                 if xind in self.flow_markers.keys():
                     self.flow_plot.removeItem(self.flow_markers[xind])
                     del(self.flow_markers[xind])
-                self.flow_markers[xind] = self.flow_plot.addLine(x=self.data.iat[xind,0], pen=MainWindow.flow_pens[self.flow_choice.currentText()], label=self.flow_choice.currentText(), labelOpts={"position" : (fs(self.flow_labels[xind]).value + 1)/8})
+                self.flow_markers[xind] = self.flow_plot.addLine(x=self.data.iat[xind,0], pen=ChangePointAnnotatorWindow.flow_pens[self.flow_choice.currentText()], label=self.flow_choice.currentText(), labelOpts={"position" : (fs(self.flow_labels[xind]).value + 1)/8})
     
     def __clear_markers(self):
         for k,v in self.pressure_markers.items():
@@ -269,6 +490,7 @@ class MainWindow(QMainWindow):
                 self.pressure_markers[i] = self.pressure_plot.addLine(self.data.iat[i,0], pen=self.pressure_pens[ps(self.pressure_labels[i]).name], label=ps(self.pressure_labels[i]).name, labelOpts={"position" :(ps(self.pressure_labels[i]).value+1)/5})
             if self.flow_labels[i] != -1:
                 self.flow_markers[i] = self.flow_plot.addLine(self.data.iat[i,0], pen=self.flow_pens[fs(self.flow_labels[i]).name], label=fs(self.flow_labels[i]).name,labelOpts={"position" : (fs(self.flow_labels[i]).value + 1)/8})
+
 class DisplaySettingsDialog(QDialog):
     def __init__(self, w_len, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -335,7 +557,6 @@ class ColumnSelectionDialog(QDialog):
                 Popup("Error","Time column must be of type integer")
         else:
             Popup("Error", "Please select columns for Time, Pressure, and Flow")
-
 
 class TableModel(QAbstractTableModel):
     def __init__(self, data):
