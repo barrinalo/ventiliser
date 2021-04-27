@@ -42,11 +42,13 @@ class BreathAnnotatorWindow(QMainWindow):
         self.info_layout = QVBoxLayout()
         self.info_layout.setAlignment(Qt.AlignTop)
         self.cur_breath_display = QLabel("Current breath is {}".format(self.current_breath))
+        self.cur_breath_label = QLabel("Current breath label is ")
         self.next_breath = QPushButton("Next Breath")
         self.next_breath.clicked.connect(self.__next_breath)
         self.prev_breath = QPushButton("Previous Breath")
         self.prev_breath.clicked.connect(self.__prev_breath)
         self.info_layout.addWidget(self.cur_breath_display)
+        self.info_layout.addWidget(self.cur_breath_label)
         self.info_layout.addWidget(self.next_breath)
         self.info_layout.addWidget(self.prev_breath)
         self.info_layout.addWidget(QLabel("Breath Label Options"))
@@ -97,6 +99,7 @@ class BreathAnnotatorWindow(QMainWindow):
             self.flow_plot.clear()
             self.flow_plot.plot(np.linspace(0,self.data.iat[self.breath_end,0]-self.data.iat[self.breath_start,0], self.breath_end - self.breath_start), self.data.iloc[self.breath_start:self.breath_end,2].values, pen=self.flow_pen)
             self.cur_breath_display.setText("Current breath is {} of {}".format(self.current_breath+1,self.nbreaths))
+            self.cur_breath_label.setText("Current breath label is {}".format(self.labeled_breaths["target"].iat[self.current_breath]))
     
     def __prev_breath(self):
         if self.current_breath > 0:
@@ -108,6 +111,7 @@ class BreathAnnotatorWindow(QMainWindow):
             self.flow_plot.clear()
             self.flow_plot.plot(np.linspace(0,self.data.iat[self.breath_end,0]-self.data.iat[self.breath_start,0], self.breath_end - self.breath_start), self.data.iloc[self.breath_start:self.breath_end,2].values, pen=self.flow_pen)
             self.cur_breath_display.setText("Current breath is {} of {}".format(self.current_breath+1,self.nbreaths))
+            self.cur_breath_label.setText("Current breath label is {}".format(self.labeled_breaths["target"].iat[self.current_breath]))
     
     def __load_sample(self):
         sample_settings = SampleSelectionDialog()
@@ -119,8 +123,13 @@ class BreathAnnotatorWindow(QMainWindow):
             self.data = pd.read_csv(sample_settings.waveformFileName, usecols=sample_settings.waveformColumns)
             self.breaths = pd.read_csv(sample_settings.breathsFileName)
             self.states = pd.read_csv(sample_settings.statesFileName)
-            self.nbreaths = sample_settings.nbreaths if sample_settings.nbreaths < self.breaths.shape[0] else self.breaths.shape[0]
-            self.labeled_breaths = pd.concat([self.breaths.iloc[:,15:].sample(n=self.nbreaths).reset_index(drop=True),pd.Series([None] * self.nbreaths, name="target")],axis=1)
+            if sample_settings.prevIndexFileName is not None:
+                self.labeled_breaths = pd.read_csv(sample_settings.prevIndexFileName)
+                self.nbreaths = self.labeled_breaths.shape[0]
+            else:
+                self.nbreaths = sample_settings.nbreaths if sample_settings.nbreaths < self.breaths.shape[0] else self.breaths.shape[0]
+                samples = self.breaths.iloc[:,15:].sample(n=self.nbreaths)
+                self.labeled_breaths = pd.concat([samples.reset_index(drop=True),pd.Series([None] * self.nbreaths, name="target"), pd.Series(samples.index, name="original_index")],axis=1)
             f = open(sample_settings.labelsFileName, "r")
             self.labels = f.read().split("\n")[:-1]
             f.close()
@@ -140,6 +149,7 @@ class BreathAnnotatorWindow(QMainWindow):
             self.flow_plot.clear()
             self.flow_plot.plot(np.linspace(0,self.data.iat[self.breath_end,0]-self.data.iat[self.breath_start,0], self.breath_end - self.breath_start), self.data.iloc[self.breath_start:self.breath_end,2].values, pen=self.flow_pen)
             self.cur_breath_display.setText("Current breath is {} of {}".format(self.current_breath+1,self.nbreaths))
+            self.cur_breath_label.setText("Current breath label is {}".format(self.labeled_breaths["target"].iat[self.current_breath]))
     
     def __label_breath(self, label):
         self.labeled_breaths["target"].iat[self.current_breath] = label
@@ -178,8 +188,14 @@ class SampleSelectionDialog(QDialog):
         self.labelsButton.clicked.connect(self.__select_labels_file)
         
         # Number of breaths to sample
-        self.nbreathsFile = QLabel("How many breaths would you like to label?")
+        self.nbreathsFile = QLabel("How many breaths would you like to label? (This will select a new sample of breaths)")
         self.nbreathsEdit = QLineEdit()
+        
+        # Load previous index file
+        self.prevIndexFile = QLabel("If you have a previous index file you wish to continue, please load it here. (This will override breaths to sample)")
+        self.prevIndexButton = QPushButton("Load Index")
+        self.prevIndexButton.clicked.connect(self.__select_prev_index)
+        self.prevIndexFileName = None
         
         # Accept reject
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -196,6 +212,8 @@ class SampleSelectionDialog(QDialog):
         self.main_widget.addWidget(self.labelsButton)
         self.main_widget.addWidget(self.nbreathsFile)
         self.main_widget.addWidget(self.nbreathsEdit)
+        self.main_widget.addWidget(self.prevIndexFile)
+        self.main_widget.addWidget(self.prevIndexButton)
         self.main_widget.addWidget(self.buttonBox)
         
         self.setLayout(self.main_widget)
@@ -229,10 +247,18 @@ class SampleSelectionDialog(QDialog):
         if fname[0] != "":
             self.labelsFileName = fname[0]
             self.labelsFile.setText(fname[0])
+    
+    def __select_prev_index(self):
+        fname = QFileDialog.getOpenFileName(self, "Open File", os.getcwd(), "Tabular data (*.csv *.tsv *.txt)")
+        if fname[0] != "":
+            self.prevIndexFileName = fname[0]
+            self.prevIndexFile.setText(fname[0])
             
     def _accepted(self):
         if self.waveformFileName is not None and self.breathsFileName is not None and self.statesFileName is not None and self.labelsFileName is not None:
-            if self.nbreathsEdit.text().isnumeric():
+            if self.prevIndexFileName is not None:
+                self.accept()
+            elif self.nbreathsEdit.text().isnumeric():
                 self.nbreaths = int(float(self.nbreathsEdit.text()))
                 if self.nbreaths > 0:
                     self.accept()
