@@ -35,15 +35,13 @@ class Draeger:
         self.mapper = StateMapper()
         self.labeller = PhaseLabeller()
         self.config = {}
-        self.config["freq"] = 100
         self.config["f_base"] = 0
-        self.config["t_len"] = 1 / 100 * 3
         self.config["leak_perc_thresh"] = 0.66
         self.config["permit_double_cycling"] = False
         self.config["insp_hold_length"] = 0.5
         self.config["exp_hold_length"] = 0.05
         
-    def load_data(self, path, cols, correction_window=None, flow_unit_converter=lambda x : x):
+    def load_data(self, path, cols, correction_window=None, flow_unit_converter=lambda x : x, freq = 100, t_len = 0.03):
         """
         Loads the data specified by path and cols and performs linear interpolation with window average baseline correction
         
@@ -62,6 +60,8 @@ class Draeger:
         -------
         None
         """
+        self.config["freq"] = 100
+        self.config["t_len"] = 1 / 100 * 3
         self.flow_unit_converter = flow_unit_converter
         self.config["correction_window"] = correction_window
         self.config["input_file"] = path
